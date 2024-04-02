@@ -23,7 +23,6 @@ func main() {
 		fmt.Println("<< Возможные аргументы >>")
 		for _, value := range OptionsData {
 			fmt.Println(value)
-
 		}
 		os.Exit(0)
 	case "fetch":
