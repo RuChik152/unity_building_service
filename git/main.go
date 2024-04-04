@@ -35,12 +35,12 @@ func main() {
 		localRepoDeirrectory := os.Args[3]
 
 		if remoteRepoURL == "" {
-			log.Println("Ошибка. Не передан удаленный репозиторий")
+			log.Printf("Ошибка. Не передан удаленный репозиторий. Текущее значение: %s", remoteRepoURL)
 			os.Exit(1)
 		}
 
 		if localRepoDeirrectory == "" {
-			log.Println("Ошибка. Не передан путь к каталогку проекта")
+			log.Printf("Ошибка. Не передан путь к каталогку проекта. Текущее значение: %s", localRepoDeirrectory)
 			os.Exit(1)
 		}
 

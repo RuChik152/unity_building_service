@@ -10,7 +10,7 @@ func fetch(url string, dirrectory string) int {
 
 	var statusCode int
 
-	cmd := exec.Command("git", "-C", dirrectory, "fetch", url, "master")
+	cmd := exec.Command("git", "-C", dirrectory, "fetch", url, "main")
 	var output bytes.Buffer
 	cmd.Stdout = &output
 	err := cmd.Run()
