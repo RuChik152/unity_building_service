@@ -3,6 +3,8 @@ package service
 import (
 	"log"
 	"os/exec"
+	"runtime"
+	"web_hendler/proc"
 )
 
 func Manager() {
@@ -19,8 +21,11 @@ func Manager() {
 			runCopyGeneralSettings()
 			runCreateGlobalConstant()
 			if CHECK_LIST.pre_build == 0 {
-				log.Println("TEST BRANCH")
-				log.Println(CHECK_LIST)
+
+				var pid = 17916
+				listPid := proc.GetListChildProcces(pid)
+				//runBuild("Android", "PICO")
+				log.Println(listPid)
 			} else {
 				log.Println("ERROR PREBUILD PROCCES")
 				return
@@ -30,6 +35,7 @@ func Manager() {
 			return
 		}
 	} else {
+		log.Println("PID>>>", PID_PROCCES_BUILDING)
 		//логика для перезапуска сборки
 	}
 }
@@ -130,3 +136,55 @@ func runCreateGlobalConstant() {
 	}
 	CHECK_LIST.pre_build = runCreateGlobalConstant.ProcessState.ExitCode()
 }
+
+func runBuild(platform string, device string) {
+
+	STATUS_BUILDING = true
+	createArgs := []string{
+		PATH_TO_EDITOR,
+		PROJECT_FOLDER,
+		platform,
+		"Karga_test_VR",
+		DEST_ANDROID_BUILD_FOLDER,
+		PATH_TO_LOGS,
+		"G:\\project\\BeliVR\\web-hook-server\\config.json",
+		"karga.keystore",
+		device,
+	}
+
+	cmdRunBuild := exec.Command("..\\builder\\builder.exe", createArgs...)
+
+	err := cmdRunBuild.Start()
+
+	// log.Println("PID: ", PID_PROCCES_BUILDING)
+	if err != nil {
+		log.Println("ОШИБКА ЗАПУСКА СБОРКИ. ", "ERR: ", err)
+		CHECK_LIST.building = cmdRunBuild.ProcessState.ExitCode()
+	}
+	PID_PROCCES_BUILDING = cmdRunBuild.Process.Pid
+	log.Printf("PID запущенного процесса: %d", cmdRunBuild.Process.Pid)
+
+	err = cmdRunBuild.Wait()
+	if err != nil {
+		runBuilderOutput, err := cmdRunBuild.Output()
+		if err != nil {
+			log.Println("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err)
+		} else {
+			log.Println(string(runBuilderOutput), "Status code: ", cmdRunBuild.ProcessState.ExitCode())
+			CHECK_LIST.building = cmdRunBuild.ProcessState.ExitCode()
+		}
+	}
+}
+
+func getOS() string {
+	return runtime.GOOS
+}
+
+// func destroyed(pid *int) {
+// 	sistem := getOS()
+// 	switch sistem {
+// 	case "windows":
+// 		os.FindProcess(*pid)
+// 		process.Processes()
+// 	}
+// }

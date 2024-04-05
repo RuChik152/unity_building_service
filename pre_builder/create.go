@@ -16,7 +16,11 @@ func createGlobalConstant(dirrectory string, branch string, pathFile string) int
 	shortHashCommit, _ := exec.Command("git", "-C", dirrectory, "rev-parse", "--short", branch).Output()
 	dataBuild := time.Now().Format("06_01_02")
 
-	hash := string(shortHashCommit)
+	log.Println(shortHashCommit)
+	//hash := string(shortHashCommit)
+	hash := removeControlCharacters(string(shortHashCommit))
+	log.Println(hash)
+
 	var numberVersion int
 	convert(countCommit, &numberVersion)
 
