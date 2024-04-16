@@ -1,6 +1,7 @@
 package service
 
 var STATUS_BUILDING bool = false
+var STATUS_RESET bool = false
 var PID_PROCCES_BUILDING int
 
 type CheckListBuilding struct {

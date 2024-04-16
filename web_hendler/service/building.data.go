@@ -13,3 +13,8 @@ var PATH_CURRENT_APK string
 var PATH_CURRENT_OBB string
 var PATH_TO_EDITOR = "C:\\Program Files\\Unity\\Hub\\Editor\\2022.1.23f1\\Editor\\Unity.exe"
 var PROCCES_BUILDING *exec.Cmd
+
+var LIST_PLATFORM map[string][]string = map[string][]string{
+	"Android": {"PICO", "OCULUS"},
+	"Win64":   {"PC"},
+}

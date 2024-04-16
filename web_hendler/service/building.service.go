@@ -4,6 +4,7 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
+	"time"
 	"web_hendler/proc"
 )
 
@@ -18,13 +19,28 @@ func Manager() {
 		gitSubManager()
 		if CHECK_LIST.git == 0 {
 			runCopyKey()
-			runCopyGeneralSettings()
 			runCreateGlobalConstant()
 			if CHECK_LIST.pre_build == 0 {
 
-				runBuild("Android", "PICO")
+				//runBuild("Android", "PICO")
 				// listPid := proc.GetListChildProcces(PROCCES_BUILDING.Process.Pid)
 				// log.Println(listPid)
+
+				for platform, targetPlatform := range LIST_PLATFORM {
+					if STATUS_RESET {
+						break
+					}
+					switch platform {
+					case "Android":
+						for _, device := range targetPlatform {
+							if STATUS_RESET {
+								break
+							}
+							runCopyGeneralSettings(device)
+							runBuild(platform, device)
+						}
+					}
+				}
 			} else {
 				log.Println("ERROR PREBUILD PROCCES")
 				return
@@ -35,9 +51,14 @@ func Manager() {
 		}
 	} else {
 		STATUS_BUILDING = false
+		STATUS_RESET = true
 		proc.DestroyedBuilding(PROCCES_BUILDING.Process.Pid)
+
+		time.Sleep(10 * time.Second)
+
+		STATUS_RESET = false
 		log.Println("PID>>>", PID_PROCCES_BUILDING)
-		runBuild("Android", "PICO")
+		Manager()
 	}
 }
 
@@ -104,10 +125,20 @@ func runCopyKey() {
 	CHECK_LIST.pre_build = runCopyKeyStore.ProcessState.ExitCode()
 }
 
-func runCopyGeneralSettings() {
+func runCopyGeneralSettings(device string) {
+
+	var pathToSettings string
+
+	switch device {
+	case "PICO":
+		pathToSettings = "G:\\project\\BeliVR\\web-hook-server\\assets\\PicoXRGeneralSettings.asset"
+	case "OCULUS":
+		pathToSettings = "G:\\project\\BeliVR\\web-hook-server\\assets\\OculusXRGeneralSettings.asset"
+	}
+
 	copySettingsArgs := []string{
 		"copy",
-		"G:\\project\\BeliVR\\web-hook-server\\assets\\PicoXRGeneralSettings.asset",
+		pathToSettings,
 		"C:\\Unity\\clone_3\\Assets\\XR\\XRGeneralSettings.asset",
 	}
 	runCopyGeneralSettings := exec.Command("..\\pre_builder\\pre_builder.exe", copySettingsArgs...)
