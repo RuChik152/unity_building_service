@@ -22,10 +22,9 @@ func Manager() {
 			runCreateGlobalConstant()
 			if CHECK_LIST.pre_build == 0 {
 
-				var pid = 17916
-				listPid := proc.GetListChildProcces(pid)
-				//runBuild("Android", "PICO")
-				log.Println(listPid)
+				runBuild("Android", "PICO")
+				// listPid := proc.GetListChildProcces(PROCCES_BUILDING.Process.Pid)
+				// log.Println(listPid)
 			} else {
 				log.Println("ERROR PREBUILD PROCCES")
 				return
@@ -35,8 +34,10 @@ func Manager() {
 			return
 		}
 	} else {
+		STATUS_BUILDING = false
+		proc.DestroyedBuilding(PROCCES_BUILDING.Process.Pid)
 		log.Println("PID>>>", PID_PROCCES_BUILDING)
-		//логика для перезапуска сборки
+		runBuild("Android", "PICO")
 	}
 }
 
@@ -152,26 +153,31 @@ func runBuild(platform string, device string) {
 		device,
 	}
 
-	cmdRunBuild := exec.Command("..\\builder\\builder.exe", createArgs...)
+	PROCCES_BUILDING = exec.Command("..\\builder\\builder.exe", createArgs...)
 
-	err := cmdRunBuild.Start()
+	err := PROCCES_BUILDING.Start()
 
-	// log.Println("PID: ", PID_PROCCES_BUILDING)
 	if err != nil {
 		log.Println("ОШИБКА ЗАПУСКА СБОРКИ. ", "ERR: ", err)
-		CHECK_LIST.building = cmdRunBuild.ProcessState.ExitCode()
+		STATUS_BUILDING = false
+		CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
+		return
 	}
-	PID_PROCCES_BUILDING = cmdRunBuild.Process.Pid
-	log.Printf("PID запущенного процесса: %d", cmdRunBuild.Process.Pid)
+	PID_PROCCES_BUILDING = PROCCES_BUILDING.Process.Pid
+	log.Printf("PID запущенного процесса: %d", PROCCES_BUILDING.Process.Pid)
 
-	err = cmdRunBuild.Wait()
+	err = PROCCES_BUILDING.Wait()
 	if err != nil {
-		runBuilderOutput, err := cmdRunBuild.Output()
+		runBuilderOutput, err := PROCCES_BUILDING.Output()
 		if err != nil {
+			STATUS_BUILDING = false
 			log.Println("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err)
+			return
 		} else {
-			log.Println(string(runBuilderOutput), "Status code: ", cmdRunBuild.ProcessState.ExitCode())
-			CHECK_LIST.building = cmdRunBuild.ProcessState.ExitCode()
+			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
+			STATUS_BUILDING = false
+			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
+			return
 		}
 	}
 }
@@ -179,12 +185,3 @@ func runBuild(platform string, device string) {
 func getOS() string {
 	return runtime.GOOS
 }
-
-// func destroyed(pid *int) {
-// 	sistem := getOS()
-// 	switch sistem {
-// 	case "windows":
-// 		os.FindProcess(*pid)
-// 		process.Processes()
-// 	}
-// }

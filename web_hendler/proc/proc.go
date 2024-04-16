@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/shirou/gopsutil/process"
 )
 
 func getOS() string {
@@ -48,4 +50,28 @@ func GetListChildProcces(pid int) []int {
 	}
 
 	return pidArray
+}
+
+func DestroyedBuilding(pid int) {
+	p, err := process.NewProcess(int32(pid))
+	if err != nil {
+		fmt.Println("Ошибка при получении процесса:", err)
+		return
+	}
+
+	children, err := p.Children()
+	if err != nil {
+		fmt.Println("Ошибка при получении дочерних процессов:", err)
+		return
+	}
+
+	for _, child := range children {
+		if err := child.Terminate(); err != nil {
+			fmt.Println("Ошибка при завершении дочернего процесса:", err)
+		}
+	}
+
+	if err := p.Terminate(); err != nil {
+		fmt.Println("Ошибка при завершении родительского процесса:", err)
+	}
 }
