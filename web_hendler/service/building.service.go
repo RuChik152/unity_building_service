@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"time"
 	"web_hendler/proc"
+	"web_hendler/uploader"
 )
 
 func Manager() {
@@ -37,7 +38,14 @@ func Manager() {
 								break
 							}
 							runCopyGeneralSettings(device)
-							runBuild(platform, device)
+							//runBuild(platform, device)
+
+							var pathListFile uploader.UploaderList
+
+							uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
+
+							log.Println("FINALY: ", pathListFile)
+
 						}
 					}
 				}
