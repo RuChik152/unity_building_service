@@ -38,7 +38,7 @@ func Manager() {
 								break
 							}
 							runCopyGeneralSettings(device)
-							//runBuild(platform, device)
+							runBuild(platform, device)
 
 							if STATUS_RESET {
 								break
