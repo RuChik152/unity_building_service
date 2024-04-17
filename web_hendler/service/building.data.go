@@ -18,3 +18,8 @@ var LIST_PLATFORM map[string][]string = map[string][]string{
 	"Android": {"PICO", "OCULUS"},
 	"Win64":   {"PC"},
 }
+
+var PICO_APP_ID string
+var PICO_APP_SECRET string
+var OCULUS_APP_ID string
+var OCULUS_APP_SECRET string

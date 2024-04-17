@@ -46,6 +46,28 @@ func Manager() {
 
 							log.Println("FINALY: ", pathListFile)
 
+							var app_id string
+							var app_secret string
+
+							switch device {
+							case "PICO":
+								app_id = PICO_APP_ID
+								app_secret = PICO_APP_SECRET
+								break
+							case "OCULUS":
+								app_id = OCULUS_APP_ID
+								app_secret = OCULUS_APP_SECRET
+								break
+							}
+
+							if pathListFile.APK != "" && pathListFile.OBB != "" {
+								uploader.UploderBuild(device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
+							} else {
+								log.Println("Не найден APK или OBB")
+								log.Println("Получен путь к APK: ", pathListFile.APK)
+								log.Println("Получен путь к OBB: ", pathListFile.OBB)
+							}
+
 						}
 					}
 				}

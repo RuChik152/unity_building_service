@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -72,7 +73,7 @@ func checkOldFile(list []fs.DirEntry) (string, error) {
 	var myTime time.Time
 
 	if list == nil {
-		return "", errors.New("путой список")
+		return "", errors.New("утой список")
 	}
 
 	for _, file := range list {
@@ -89,4 +90,27 @@ func checkOldFile(list []fs.DirEntry) (string, error) {
 	}
 
 	return myfile.Name(), nil
+}
+
+func UploderBuild(device string, apk string, obb string, app_id string, app_secret string, chanel string) {
+
+	runArgs := []string{
+		device,
+		app_id,
+		app_secret,
+		apk,
+		obb,
+		chanel,
+	}
+
+	cmd := exec.Command("..\\uploader\\uploader.exe", runArgs...)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Println("Ошибка загрузки: ", string(output), "\n", err)
+		return
+	} else {
+		log.Println(string(output))
+		return
+	}
 }

@@ -17,6 +17,10 @@ func init() {
 	}
 
 	service.PROJECT_FOLDER, _ = os.LookupEnv("PATH_PROJECT")
+	service.PICO_APP_ID, _ = os.LookupEnv("PICO_APP_ID")
+	service.PICO_APP_SECRET, _ = os.LookupEnv("PICO_APP_SECRET")
+	service.OCULUS_APP_ID, _ = os.LookupEnv("OCULUS_APP_ID")
+	service.OCULUS_APP_SECRET, _ = os.LookupEnv("OCULUS_APP_SECRET")
 }
 
 func main() {
