@@ -16,9 +16,9 @@ func init() {
 
 		switch PLATFORM {
 		case "OCULUS":
-			CLI_PATH = ".\\cli\\ovr-platform-util.exe"
+			CLI_PATH = "..\\uploader\\cli\\ovr-platform-util.exe"
 		case "PICO":
-			CLI_PATH = ".\\cli\\pico-cli.exe"
+			CLI_PATH = "..\\uploader\\cli\\pico-cli.exe"
 		default:
 			log.Println("Arguments not Found")
 			os.Exit(1)
