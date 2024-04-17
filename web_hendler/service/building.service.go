@@ -40,6 +40,10 @@ func Manager() {
 							runCopyGeneralSettings(device)
 							//runBuild(platform, device)
 
+							if STATUS_RESET {
+								break
+							}
+
 							var pathListFile uploader.UploaderList
 
 							uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)

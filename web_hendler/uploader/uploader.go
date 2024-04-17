@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -19,10 +20,10 @@ func GetllistFile(query string, dirPath string, list *UploaderList) {
 	listAll, _ := getListDir(query, dirPath)
 
 	filterdAPKList := fileFilter("apk", listAll)
-	list.APK, _ = checkOldFile(filterdAPKList)
+	list.APK, _ = checkOldFile(filterdAPKList, dirPath)
 
 	filterdOBBList := fileFilter("obb", listAll)
-	list.OBB, _ = checkOldFile(filterdOBBList)
+	list.OBB, _ = checkOldFile(filterdOBBList, dirPath)
 
 }
 
@@ -67,7 +68,7 @@ func fileFilter(sufux string, list []fs.DirEntry) []fs.DirEntry {
 
 }
 
-func checkOldFile(list []fs.DirEntry) (string, error) {
+func checkOldFile(list []fs.DirEntry, desDirBuild string) (string, error) {
 
 	var myfile fs.DirEntry
 	var myTime time.Time
@@ -89,7 +90,7 @@ func checkOldFile(list []fs.DirEntry) (string, error) {
 		}
 	}
 
-	return myfile.Name(), nil
+	return filepath.Join(desDirBuild, myfile.Name()), nil
 }
 
 func UploderBuild(device string, apk string, obb string, app_id string, app_secret string, chanel string) {
