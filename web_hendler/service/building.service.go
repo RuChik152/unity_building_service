@@ -1,10 +1,12 @@
 package service
 
 import (
+	"encoding/json"
 	"log"
 	"os/exec"
 	"runtime"
 	"time"
+	"web_hendler/bot"
 	"web_hendler/proc"
 	"web_hendler/uploader"
 )
@@ -17,6 +19,22 @@ func Manager() {
 	CHECK_LIST.upload = 1
 
 	if !STATUS_BUILDING {
+
+		bot.StandartMsg.Event = "allow"
+		bot.StandartMsg.Message = "Запускаю сборку..."
+
+		strStartMsgBot, err := json.Marshal(bot.StandartMsg)
+		if err != nil {
+			log.Println("Ошибка преобразования данных для запроса к боту")
+		} else {
+			bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_start")
+		}
+
+		bot.ResultMsgBuild.Event = "build"
+		bot.ResultMsgBuild.Info.DataVersion = "-- NO_DATA"
+		bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
+		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
+
 		gitSubManager()
 		if CHECK_LIST.git == 0 {
 			runCopyKey()
@@ -75,6 +93,16 @@ func Manager() {
 						}
 					}
 				}
+
+				if !STATUS_RESET {
+					strMessage, err := json.Marshal(bot.ResultMsgBuild)
+					if err != nil {
+						log.Println("Ошибка преобразования данных для отправки боту")
+					}
+
+					bot.SendMessageBot(string(strMessage), "#pipline_check")
+				}
+
 			} else {
 				log.Println("ERROR PREBUILD PROCCES")
 				return
@@ -84,6 +112,17 @@ func Manager() {
 			return
 		}
 	} else {
+
+		bot.StandartMsg.Event = "allow"
+		bot.StandartMsg.Message = "Сборка уже ведеться, выполняю перезапуск..."
+
+		strStartMsgBot, err := json.Marshal(bot.StandartMsg)
+		if err != nil {
+			log.Println("Ошибка преобразования данных для запроса к боту")
+		} else {
+			bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_restart")
+		}
+
 		STATUS_BUILDING = false
 		STATUS_RESET = true
 		proc.DestroyedBuilding(PROCCES_BUILDING.Process.Pid)
@@ -235,14 +274,46 @@ func runBuild(platform string, device string) {
 	if err != nil {
 		runBuilderOutput, err := PROCCES_BUILDING.Output()
 		if err != nil {
+			switch device {
+			case "PICO":
+				bot.ResultMsgBuild.PicoMessage.Status = false
+				bot.ResultMsgBuild.PicoMessage.Message = "⚠️ Не успешно"
+				break
+			case "OCULUS":
+				bot.ResultMsgBuild.OculusMessage.Status = false
+				bot.ResultMsgBuild.OculusMessage.Message = "⚠️ Не успешно"
+				break
+			}
 			STATUS_BUILDING = false
 			log.Println("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err)
 			return
 		} else {
+			switch device {
+			case "PICO":
+				bot.ResultMsgBuild.PicoMessage.Status = false
+				bot.ResultMsgBuild.PicoMessage.Message = "⚠️ Не успешно"
+				break
+			case "OCULUS":
+				bot.ResultMsgBuild.OculusMessage.Status = false
+				bot.ResultMsgBuild.OculusMessage.Message = "⚠️ Не успешно"
+				break
+			}
 			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
 			STATUS_BUILDING = false
 			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
 			return
+		}
+
+	} else {
+		switch device {
+		case "PICO":
+			bot.ResultMsgBuild.PicoMessage.Status = true
+			bot.ResultMsgBuild.PicoMessage.Message = "✅ Успешно"
+			break
+		case "OCULUS":
+			bot.ResultMsgBuild.OculusMessage.Status = true
+			bot.ResultMsgBuild.OculusMessage.Message = "✅ Успешно"
+			break
 		}
 	}
 }

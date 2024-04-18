@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"web_hendler/bot"
 )
 
 type UploaderList struct {
@@ -108,9 +109,21 @@ func UploderBuild(device string, apk string, obb string, app_id string, app_secr
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		switch device {
+		case "PICO":
+			bot.ResultMsgBuild.PicoMessage.SendBuild = "⚠️ Не успешно. " + string(output)
+		case "OCULUS":
+			bot.ResultMsgBuild.OculusMessage.SendBuild = "⚠️ Не успешно. " + string(output)
+		}
 		log.Println("Ошибка загрузки: ", string(output), "\n", err)
 		return
 	} else {
+		switch device {
+		case "PICO":
+			bot.ResultMsgBuild.PicoMessage.SendBuild = "✅ Успешно. " + string(output)
+		case "OCULUS":
+			bot.ResultMsgBuild.OculusMessage.SendBuild = "✅ Успешно. " + string(output)
+		}
 		log.Println(string(output))
 		return
 	}
