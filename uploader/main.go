@@ -4,9 +4,19 @@ import (
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/joho/godotenv"
 )
 
 func init() {
+	log.Println("MOD_UPLOADER_INIT")
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+		os.Exit(1)
+	} else {
+		log.Print("Success, .env file found")
+	}
+
 	//EXAMPLE PICO <app-id> <app-secret> <path-apk> <path-obb> <chanel>
 	if len(os.Args) < 2 {
 		log.Println("Arguments not Found")
@@ -16,9 +26,17 @@ func init() {
 
 		switch PLATFORM {
 		case "OCULUS":
-			CLI_PATH = "..\\uploader\\cli\\ovr-platform-util.exe"
+			CLI_PATH, _ = os.LookupEnv("PATH_OCULUS_TOOLS")
+			if CLI_PATH == "" {
+				log.Println("Путь к CLI не найден. Процесс завершен.")
+				os.Exit(1)
+			}
 		case "PICO":
-			CLI_PATH = "..\\uploader\\cli\\pico-cli.exe"
+			CLI_PATH, _ = os.LookupEnv("PATH_PICO_TOOLS")
+			if CLI_PATH == "" {
+				log.Println("Путь к CLI не найден. Процесс завершен.")
+				os.Exit(1)
+			}
 		default:
 			log.Println("Arguments not Found")
 			os.Exit(1)
