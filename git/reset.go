@@ -3,15 +3,22 @@ package main
 import (
 	"bytes"
 	"log"
+	"os"
 	"os/exec"
 )
 
-func reset(url string, dirrectory string, branch string) int {
+func reset(url string) int {
 	var statusCode int
 
-	var remoteBranch = url + "/" + branch
+	dir, _ := os.LookupEnv("PATH_PROJECT")
+	if dir == "" {
+		log.Println("Не получен путь до каталога проекта. Завершение работы")
+		os.Exit(1)
+	}
 
-	cmd := exec.Command("git", "-C", dirrectory, "reset", "--hard", remoteBranch)
+	var remoteBranch = url + "/main"
+
+	cmd := exec.Command("git", "-C", dir, "reset", "--hard", remoteBranch)
 
 	var output bytes.Buffer
 	cmd.Stdout = &output

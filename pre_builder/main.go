@@ -4,9 +4,19 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func init() {
+
+	log.Println("MOD_PREBUILD_INIT")
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+		os.Exit(1)
+	} else {
+		log.Print("Success, .env file found")
+	}
 
 	OptionsData = make(map[interface{}]interface{})
 	OptionsData["copy"] = "copy ## Производит копирование файлов\nEXAMPLE: copy <\"C:\\path\\to\\source\\file\\file.txt\"> <\"C:\\path\\to\\dest\\file\\file.txt\">\n\n"

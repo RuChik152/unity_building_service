@@ -3,13 +3,20 @@ package main
 import (
 	"bytes"
 	"log"
+	"os"
 	"os/exec"
 )
 
-func pull(url string, dirrectory string, branch string) int {
+func pull(url string) int {
 	var statusCode int
 
-	cmd := exec.Command("git", "-C", dirrectory, "pull", url, branch)
+	dir, _ := os.LookupEnv("PATH_PROJECT")
+	if dir == "" {
+		log.Println("Не получен путь до каталога проекта. Завершение работы")
+		os.Exit(1)
+	}
+
+	cmd := exec.Command("git", "-C", dir, "pull", url, "main")
 	var output bytes.Buffer
 	cmd.Stdout = &output
 	err := cmd.Run()
