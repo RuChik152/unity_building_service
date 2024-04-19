@@ -11,9 +11,9 @@ import (
 	"unicode"
 )
 
-func createGlobalConstant(dirrectory string, branch string, pathFile string) int {
-	countCommit, _ := exec.Command("git", "-C", dirrectory, "rev-list", "--count", branch).Output()
-	shortHashCommit, _ := exec.Command("git", "-C", dirrectory, "rev-parse", "--short", branch).Output()
+func createGlobalConstant(dirrectory string, pathFile string) int {
+	countCommit, _ := exec.Command("git", "-C", dirrectory, "rev-list", "--count", "main").Output()
+	shortHashCommit, _ := exec.Command("git", "-C", dirrectory, "rev-parse", "--short", "main").Output()
 	dataBuild := time.Now().Format("06_01_02")
 
 	log.Println(shortHashCommit)

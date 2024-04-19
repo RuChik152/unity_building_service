@@ -66,14 +66,15 @@ func SendMessageBot(msg string, tg string) {
 		resp, err := http.Post(bot_url+":"+bot_port+"/echo_build", "application/json", bytes.NewBuffer(payload))
 		if err != nil {
 			log.Println("Ошибка отправки сообщения боту")
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Println("::Ошибка чтения ответа: ", err)
 		} else {
-			log.Println("::Получен ответ от бота: ", string(body))
+			defer resp.Body.Close()
+
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Println("::Ошибка чтения ответа: ", err)
+			} else {
+				log.Println("::Получен ответ от бота: ", string(body))
+			}
 		}
 
 	} else {

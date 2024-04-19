@@ -4,6 +4,7 @@ import (
 	"os/exec"
 )
 
+var NAME_KEYSTORE string
 var NAME_APK string
 var PROJECT_FOLDER string
 var DEST_ANDROID_BUILD_FOLDER = "C:\\Unity\\build\\"

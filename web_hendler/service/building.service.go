@@ -3,7 +3,9 @@ package service
 import (
 	"encoding/json"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"time"
 	"web_hendler/bot"
@@ -41,10 +43,6 @@ func Manager() {
 			runCreateGlobalConstant()
 			if CHECK_LIST.pre_build == 0 {
 
-				//runBuild("Android", "PICO")
-				// listPid := proc.GetListChildProcces(PROCCES_BUILDING.Process.Pid)
-				// log.Println(listPid)
-
 				for platform, targetPlatform := range LIST_PLATFORM {
 					if STATUS_RESET {
 						break
@@ -56,7 +54,7 @@ func Manager() {
 								break
 							}
 							runCopyGeneralSettings(device)
-							runBuild(platform, device)
+							//runBuild(platform, device)
 
 							if STATUS_RESET {
 								break
@@ -136,12 +134,18 @@ func Manager() {
 }
 
 func gitSubManager() {
+
+	pathMudule, _ := os.LookupEnv("PATH_GIT_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		return
+	}
+
 	gitArgsFetch := []string{
 		"fetch",
 		"origin",
-		PROJECT_FOLDER,
 	}
-	runGitFetch := exec.Command("..\\git\\git_runner.exe", gitArgsFetch...)
+	runGitFetch := exec.Command(pathMudule, gitArgsFetch...)
 	gitFetchOutput, err := runGitFetch.CombinedOutput()
 	if err != nil {
 		log.Println("Error FETCH: ", string(gitFetchOutput), "\n", err)
@@ -153,10 +157,8 @@ func gitSubManager() {
 	gitArgsReset := []string{
 		"reset",
 		"origin",
-		PROJECT_FOLDER,
-		"main",
 	}
-	runGitReset := exec.Command("..\\git\\git_runner.exe", gitArgsReset...)
+	runGitReset := exec.Command(pathMudule, gitArgsReset...)
 	gitOutputReset, err := runGitReset.CombinedOutput()
 	if err != nil {
 		log.Println("Error RESET: ", string(gitOutputReset), "\n", err)
@@ -168,10 +170,8 @@ func gitSubManager() {
 	gitArgsPull := []string{
 		"pull",
 		"origin",
-		PROJECT_FOLDER,
-		"main",
 	}
-	runGitPull := exec.Command("..\\git\\git_runner.exe", gitArgsPull...)
+	runGitPull := exec.Command(pathMudule, gitArgsPull...)
 	gitOutputPull, err := runGitPull.CombinedOutput()
 	if err != nil {
 		log.Println("Error PULL: ", string(gitOutputPull), "\n", err)
@@ -182,13 +182,30 @@ func gitSubManager() {
 }
 
 func runCopyKey() {
-	copyKeyStore := []string{
-		"copy",
-		"C:\\Unity\\karga.keystore",
-		"C:\\Unity\\clone_3\\karga.keystore",
+
+	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с PREBUILD")
+		return
 	}
 
-	runCopyKeyStore := exec.Command("..\\pre_builder\\pre_builder.exe", copyKeyStore...)
+	name_keystore, _ := os.LookupEnv("KEYSTORE_NAME")
+	if name_keystore == "" {
+		panic("Не установлено имя хранилища ключей <name.keystore>")
+	}
+
+	path_store_keystore, _ := os.LookupEnv("PATH_STORE_KEYSTORE")
+	if path_store_keystore == "" {
+		panic("Не установлен путь до хранилища ключей <C:\\storage\\>")
+	}
+
+	copyKeyStore := []string{
+		"copy",
+		filepath.Join(path_store_keystore, name_keystore),
+		filepath.Join(PROJECT_FOLDER, name_keystore),
+	}
+
+	runCopyKeyStore := exec.Command(pathMudule, copyKeyStore...)
 	copyOutputKey, err := runCopyKeyStore.CombinedOutput()
 	if err != nil {
 		log.Println("ERROR COPY KEYSTORE FILE: ", string(copyOutputKey), "\n", err)
@@ -200,21 +217,32 @@ func runCopyKey() {
 
 func runCopyGeneralSettings(device string) {
 
+	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с PREBUILD")
+		return
+	}
+
+	path_to_assets, _ := os.LookupEnv("PATH_ASSETS_FOLDER")
+	if path_to_assets == "" {
+		panic("Не передан путь к файлам конфиграции платформ")
+	}
+
 	var pathToSettings string
 
 	switch device {
 	case "PICO":
-		pathToSettings = "G:\\project\\BeliVR\\web-hook-server\\assets\\PicoXRGeneralSettings.asset"
+		pathToSettings = filepath.Join(path_to_assets, "PicoXRGeneralSettings.asset")
 	case "OCULUS":
-		pathToSettings = "G:\\project\\BeliVR\\web-hook-server\\assets\\OculusXRGeneralSettings.asset"
+		pathToSettings = filepath.Join(path_to_assets, "OculusXRGeneralSettings.asset")
 	}
 
 	copySettingsArgs := []string{
 		"copy",
 		pathToSettings,
-		"C:\\Unity\\clone_3\\Assets\\XR\\XRGeneralSettings.asset",
+		filepath.Join(PROJECT_FOLDER, "\\Assets\\XR\\XRGeneralSettings.asset"),
 	}
-	runCopyGeneralSettings := exec.Command("..\\pre_builder\\pre_builder.exe", copySettingsArgs...)
+	runCopyGeneralSettings := exec.Command(pathMudule, copySettingsArgs...)
 	copyOutputSettings, err := runCopyGeneralSettings.CombinedOutput()
 	if err != nil {
 		log.Println("ERROR COPY GENERAL SETTINGS: ", string(copyOutputSettings), "\n", err)
@@ -226,13 +254,18 @@ func runCopyGeneralSettings(device string) {
 
 func runCreateGlobalConstant() {
 
+	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		return
+	}
+
 	creatGlobalConstantArgs := []string{
 		"create",
 		PROJECT_FOLDER,
-		"main",
-		"C:\\Unity\\clone_3\\Assets\\Scripts\\GlobalConstants.cs",
+		filepath.Join(PROJECT_FOLDER, "\\Assets\\Scripts\\GlobalConstants.cs"),
 	}
-	runCreateGlobalConstant := exec.Command("..\\pre_builder\\pre_builder.exe", creatGlobalConstantArgs...)
+	runCreateGlobalConstant := exec.Command(pathMudule, creatGlobalConstantArgs...)
 	creatGlobalConstantOutput, err := runCreateGlobalConstant.CombinedOutput()
 	if err != nil {
 		log.Println("ERROR CREAT CONSTANT: ", string(creatGlobalConstantOutput), "\n", err)
@@ -244,20 +277,31 @@ func runCreateGlobalConstant() {
 
 func runBuild(platform string, device string) {
 
+	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		return
+	}
+
+	name_keystore, _ := os.LookupEnv("KEYSTORE_NAME")
+	if name_keystore == "" {
+		panic("Не установлено имя хранилища ключей <name.keystore>")
+	}
+
 	STATUS_BUILDING = true
 	createArgs := []string{
 		PATH_TO_EDITOR,
 		PROJECT_FOLDER,
 		platform,
-		"Karga_test_VR",
+		"Karga_VR",
 		DEST_ANDROID_BUILD_FOLDER,
 		PATH_TO_LOGS,
 		"G:\\project\\BeliVR\\web-hook-server\\config.json",
-		"karga.keystore",
+		name_keystore,
 		device,
 	}
 
-	PROCCES_BUILDING = exec.Command("..\\builder\\builder.exe", createArgs...)
+	PROCCES_BUILDING = exec.Command(pathMudule, createArgs...)
 
 	err := PROCCES_BUILDING.Start()
 

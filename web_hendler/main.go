@@ -21,10 +21,11 @@ func init() {
 	service.PICO_APP_SECRET, _ = os.LookupEnv("PICO_APP_SECRET")
 	service.OCULUS_APP_ID, _ = os.LookupEnv("OCULUS_APP_ID")
 	service.OCULUS_APP_SECRET, _ = os.LookupEnv("OCULUS_APP_SECRET")
+	service.NAME_KEYSTORE, _ = os.LookupEnv("KEYSTORE_NAME")
+
 }
 
 func main() {
-
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: appRouter(),

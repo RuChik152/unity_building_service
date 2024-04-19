@@ -10,12 +10,12 @@ import (
 )
 
 func init() {
-
+	log.Println("MOD_BUILD_INIT")
 	actionArgs := os.Args[1]
 
 	switch actionArgs {
 	case "--help":
-		log.Println("Example arguments: <Path\\to\\Editor> <Path\\to\\project> <Android> <Karga> <Path\\to\\Build\\> <Path\\to\\log\\log.log> <Path\\to\\config\\json> <keaystore.keystore> <PICO>")
+		log.Println("Example arguments: <Android> <Name_APK> <Path\\to\\Build\\> <Path\\to\\log\\log.log> <Path\\to\\config\\json> <PICO>")
 		os.Exit(0)
 	default:
 		if err := godotenv.Load(); err != nil {
@@ -33,15 +33,19 @@ func init() {
 		os.Setenv("KEY_ALIAS_NAME", "karga")
 		os.Setenv("KEY_ALIAS_PASS", "qwertyui")
 
-		pathToProject := os.Args[2]
+		pathToProject, _ := os.LookupEnv("PATH_TO_FOLDER_FOR_PROJECT")
+		if pathToProject == "" {
+			log.Println("Не установлен путь в переменных среды к папке с проектом. Завершаю работу...")
+			os.Exit(1)
+		}
 		// Название платформы для сборки Android, Win64 и т.д.
-		targetPlatform := os.Args[3]
-		name := os.Args[4]
-		pathDestBuild := os.Args[5]
-		logsFile := os.Args[6]
-		pathConfigJson := os.Args[7]
-		keystoreName := os.Args[8]
-		targetDevice := os.Args[9]
+		targetPlatform := os.Args[1]
+		name := os.Args[2]
+		pathDestBuild := os.Args[3]
+		logsFile := os.Args[4]
+		pathConfigJson := os.Args[5]
+		keystoreName, _ := os.LookupEnv("KEYSTORE_NAME")
+		targetDevice := os.Args[6]
 
 		Arguments = append(Arguments,
 			"-projectPath", pathToProject,
@@ -63,14 +67,13 @@ func init() {
 }
 
 func main() {
-	// Example arguments: <Path\to\Editor> <Path\to\project> <Android> <Karga> <Path\to\Build\> <Path\to\log\log.log> <Path\to\config\json> <keaystore.keystore> <PICO>
+	// Example arguments: <Android> <Karga> <Path\to\Build\> <Path\to\log\log.log> <Path\to\config\json> <PICO>
 
-	pathToEditor := os.Args[1]
-
-	log.Println(pathToEditor)
-	// for _, value := range Arguments {
-	// 	log.Println(value)
-	// }
+	pathToEditor, _ := os.LookupEnv("PATH_UNITY_EDITOR")
+	if pathToEditor == "" {
+		log.Println("Не установлен путь в переменных средах к редактору Unity. Завершаю работу...")
+		os.Exit(1)
+	}
 
 	cmd := exec.Command(pathToEditor, Arguments...)
 

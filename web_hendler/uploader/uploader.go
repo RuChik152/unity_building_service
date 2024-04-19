@@ -75,7 +75,7 @@ func checkOldFile(list []fs.DirEntry, desDirBuild string) (string, error) {
 	var myTime time.Time
 
 	if list == nil {
-		return "", errors.New("утой список")
+		return "", errors.New("путой список")
 	}
 
 	for _, file := range list {
@@ -96,6 +96,12 @@ func checkOldFile(list []fs.DirEntry, desDirBuild string) (string, error) {
 
 func UploderBuild(device string, apk string, obb string, app_id string, app_secret string, chanel string) {
 
+	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		return
+	}
+
 	runArgs := []string{
 		device,
 		app_id,
@@ -105,7 +111,7 @@ func UploderBuild(device string, apk string, obb string, app_id string, app_secr
 		chanel,
 	}
 
-	cmd := exec.Command("..\\uploader\\uploader.exe", runArgs...)
+	cmd := exec.Command(pathMudule, runArgs...)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
