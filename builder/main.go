@@ -39,28 +39,31 @@ func init() {
 			os.Exit(1)
 		}
 		// Название платформы для сборки Android, Win64 и т.д.
-		targetPlatform := os.Args[1]
-		name := os.Args[2]
-		pathDestBuild := os.Args[3]
-		logsFile := os.Args[4]
-		pathConfigJson := os.Args[5]
+		// targetPlatform := os.Args[1] //Android
+		// name := os.Args[2]           //Karga_VR
+		// pathDestBuild := os.Args[3]  //C:\Unity\build\
+		// logsFile := os.Args[4]       //C:\Unity\logs\test_runner_logs.log
+		// pathConfigJson := os.Args[5] //G:\project\BeliVR\web-hook-server\config.json
 		keystoreName, _ := os.LookupEnv("KEYSTORE_NAME")
-		targetDevice := os.Args[6]
+		// targetDevice := os.Args[6] //karga.keystore
+		//PICO
+
+		log.Println("<<<ARGUMENTS>>", os.Args)
 
 		Arguments = append(Arguments,
 			"-projectPath", pathToProject,
 			"-quit",
 			"-batchmode",
 			"-nographics",
-			"-buildTarget", targetPlatform,
-			"-customBuildTarget", targetPlatform,
-			"-customBuildName", name,
-			"-customBuildPath", pathDestBuild,
+			"-buildTarget", os.Args[1],
+			"-customBuildTarget", os.Args[1],
+			"-customBuildName", os.Args[2],
+			"-customBuildPath", os.Args[3],
 			"-executeMethod", "BuildScript.BuildAPK",
-			"-logFile", logsFile,
-			"-pathJsonConfig", pathConfigJson,
+			"-logFile", os.Args[4],
+			"-pathJsonConfig", os.Args[5],
 			"-nameKeyStore", keystoreName,
-			"-targetBuildDevice", targetDevice,
+			"-targetBuildDevice", os.Args[6],
 		)
 	}
 
@@ -68,7 +71,6 @@ func init() {
 
 func main() {
 	// Example arguments: <Android> <Karga> <Path\to\Build\> <Path\to\log\log.log> <Path\to\config\json> <PICO>
-
 	pathToEditor, _ := os.LookupEnv("PATH_UNITY_EDITOR")
 	if pathToEditor == "" {
 		log.Println("Не установлен путь в переменных средах к редактору Unity. Завершаю работу...")

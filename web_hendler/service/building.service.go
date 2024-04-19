@@ -37,7 +37,8 @@ func Manager() {
 		bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
 		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
 
-		gitSubManager()
+		//gitSubManager()
+		CHECK_LIST.git = 0
 		if CHECK_LIST.git == 0 {
 			runCopyKey()
 			runCreateGlobalConstant()
@@ -54,7 +55,7 @@ func Manager() {
 								break
 							}
 							runCopyGeneralSettings(device)
-							//runBuild(platform, device)
+							runBuild(platform, device)
 
 							if STATUS_RESET {
 								break
@@ -196,7 +197,7 @@ func runCopyKey() {
 
 	path_store_keystore, _ := os.LookupEnv("PATH_STORE_KEYSTORE")
 	if path_store_keystore == "" {
-		panic("Не установлен путь до хранилища ключей <C:\\storage\\>")
+		panic("Не установлен путь до хранилища ключей <path\\to\\storage\\folder>")
 	}
 
 	copyKeyStore := []string{
@@ -277,29 +278,25 @@ func runCreateGlobalConstant() {
 
 func runBuild(platform string, device string) {
 
-	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
+	pathMudule, _ := os.LookupEnv("PATH_BUILDER_MOD")
 	if pathMudule == "" {
 		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
 		return
 	}
 
-	name_keystore, _ := os.LookupEnv("KEYSTORE_NAME")
-	if name_keystore == "" {
-		panic("Не установлено имя хранилища ключей <name.keystore>")
-	}
+	path_to_logs := PATH_TO_LOGS + "_" + device + ".log"
 
 	STATUS_BUILDING = true
 	createArgs := []string{
-		PATH_TO_EDITOR,
-		PROJECT_FOLDER,
 		platform,
 		"Karga_VR",
 		DEST_ANDROID_BUILD_FOLDER,
-		PATH_TO_LOGS,
+		path_to_logs,
 		"G:\\project\\BeliVR\\web-hook-server\\config.json",
-		name_keystore,
 		device,
 	}
+
+	log.Println("ПОЛУЧЕНЫ аргументы запуска: ", createArgs)
 
 	PROCCES_BUILDING = exec.Command(pathMudule, createArgs...)
 
