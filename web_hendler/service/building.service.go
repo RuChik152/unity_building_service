@@ -37,7 +37,7 @@ func Manager() {
 		bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
 		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
 
-		//gitSubManager()
+		gitSubManager()
 		CHECK_LIST.git = 0
 		if CHECK_LIST.git == 0 {
 			runCopyKey()
