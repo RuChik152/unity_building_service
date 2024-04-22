@@ -278,13 +278,7 @@ func runCreateGlobalConstant() {
 
 func runBuild(platform string, device string) {
 
-	pathMudule, _ := os.LookupEnv("PATH_BUILDER_MOD")
-	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
-		return
-	}
-
-	path_to_logs := PATH_TO_LOGS + "_" + device + ".log"
+	path_to_logs := PATH_TO_LOGS + device + ".log"
 
 	STATUS_BUILDING = true
 	createArgs := []string{
@@ -296,9 +290,9 @@ func runBuild(platform string, device string) {
 		device,
 	}
 
-	log.Println("ПОЛУЧЕНЫ аргументы запуска: ", createArgs)
+	log.Println("Получены аргументы запуска: ", createArgs)
 
-	PROCCES_BUILDING = exec.Command(pathMudule, createArgs...)
+	PROCCES_BUILDING = exec.Command(PATH_BUILDER_MOD, createArgs...)
 
 	err := PROCCES_BUILDING.Start()
 
