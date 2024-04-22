@@ -34,6 +34,8 @@ var ResultMsgBuild BotMessage
 
 var StandartMsg StandartMsgBot
 
+var CommitMsg CommitData
+
 type MessageBot struct {
 	Msg  string    `json:"msg"`
 	Data time.Time `json:"data"`
@@ -43,6 +45,14 @@ type MessageBot struct {
 type StandartMsgBot struct {
 	Event   string `json:"event"`
 	Message string `json:"message"`
+}
+
+type CommitData struct {
+	Event   string `json:"event"`
+	ID      string `json:"ID"`
+	SHA     string `json:"sha"`
+	AUTHOR  string `json:"author"`
+	MESSAGE string `json:"message"`
 }
 
 func SendMessageBot(msg string, tg string) {
