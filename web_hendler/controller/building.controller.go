@@ -19,6 +19,7 @@ func BuildingController(r *mux.Router) {
 
 		if req.Method == http.MethodPost {
 			if checkDataCommit(res, req) {
+				res.WriteHeader(http.StatusOK)
 				service.Manager()
 			}
 

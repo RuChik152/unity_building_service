@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"web_hendler/service"
 
 	"github.com/joho/godotenv"
@@ -74,7 +75,9 @@ func init() {
 
 	service.DEST_ANDROID_BUILD_FOLDER, _ = os.LookupEnv("PATH_TO_ANDROID_BUILD_FOLDER")
 	if service.DEST_ANDROID_BUILD_FOLDER != "" {
+		service.DEST_ANDROID_BUILD_FOLDER = path.Join(service.DEST_ANDROID_BUILD_FOLDER + "\\")
 		log.Println("PATH_TO_ANDROID_BUILD_FOLDER:", service.DEST_ANDROID_BUILD_FOLDER)
+
 	} else {
 		log.Println("Ошибка!!! Не установлен путь к каталогу для сборок под Android")
 		os.Exit(1)

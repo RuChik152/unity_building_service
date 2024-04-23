@@ -38,7 +38,6 @@ func Manager() {
 		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
 
 		gitSubManager()
-		CHECK_LIST.git = 0
 		if CHECK_LIST.git == 0 {
 			runCopyKey()
 			runCreateGlobalConstant()
