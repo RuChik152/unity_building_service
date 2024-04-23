@@ -98,6 +98,14 @@ func init() {
 		log.Println("Ошибка!!! Не установлен путь к исполняемому файлу модуля для работы со сборкой")
 		os.Exit(1)
 	}
+
+	service.PATH_TO_CONFIG_JSON, _ = os.LookupEnv("PATH_TO_CONFIG_JSON")
+	if service.PATH_TO_CONFIG_JSON != "" {
+		log.Println("PATH_TO_CONFIG_JSON:", service.PATH_TO_CONFIG_JSON)
+	} else {
+		log.Println("Ошибка!!! Не установлен путь к JSON конфигу")
+		os.Exit(1)
+	}
 }
 
 func main() {

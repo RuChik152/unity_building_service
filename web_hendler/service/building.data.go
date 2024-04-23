@@ -15,6 +15,7 @@ var PATH_CURRENT_OBB string
 var PATH_TO_EDITOR string
 var PROCCES_BUILDING *exec.Cmd
 var PATH_BUILDER_MOD string
+var PATH_TO_CONFIG_JSON string
 
 var MAP_CONFIG_DATA map[string]string
 

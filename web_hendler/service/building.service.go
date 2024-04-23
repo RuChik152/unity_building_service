@@ -285,7 +285,7 @@ func runBuild(platform string, device string) {
 		"Karga_VR",
 		DEST_ANDROID_BUILD_FOLDER,
 		path_to_logs,
-		"G:\\project\\BeliVR\\web-hook-server\\config.json",
+		PATH_TO_CONFIG_JSON,
 		device,
 	}
 
