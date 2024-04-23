@@ -80,25 +80,29 @@ func Manager() {
 								break
 							}
 
-							if pathListFile.APK != "" && pathListFile.OBB != "" {
-								uploader.UploderBuild(device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
-							} else {
-								log.Println("Не найден APK или OBB")
-								log.Println("Получен путь к APK: ", pathListFile.APK)
-								log.Println("Получен путь к OBB: ", pathListFile.OBB)
-							}
-
+							go func(dev string) {
+								if pathListFile.APK != "" && pathListFile.OBB != "" {
+									uploader.UploderBuild(dev, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
+								} else {
+									log.Println("Не найден APK или OBB")
+									log.Println("Получен путь к APK: ", pathListFile.APK)
+									log.Println("Получен путь к OBB: ", pathListFile.OBB)
+								}
+							}(device)
 						}
 					}
 				}
 
 				if !STATUS_RESET {
-					strMessage, err := json.Marshal(bot.ResultMsgBuild)
-					if err != nil {
-						log.Println("Ошибка преобразования данных для отправки боту")
-					}
 
-					bot.SendMessageBot(string(strMessage), "#pipline_check")
+					bot.ResultMsgBuild.Mu.Lock()
+					if strMessage, err := bot.ResultMsgBuild.MarshalJSON(); err != nil {
+						log.Println("Ошибка преобразования данных для отправки боту")
+					} else {
+						bot.SendMessageBot(string(strMessage), "#pipline_check")
+					}
+					bot.ResultMsgBuild.Mu.Unlock()
+
 				}
 
 			} else {
