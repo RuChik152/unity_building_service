@@ -18,11 +18,15 @@ func BuildingController(r *mux.Router) {
 	buildRouter.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 
 		if req.Method == http.MethodPost {
+			res.WriteHeader(http.StatusOK)
+			fmt.Fprintf(res, "Success")
 			if checkDataCommit(res, req) {
-				res.WriteHeader(http.StatusOK)
-				service.Manager()
+				go service.Manager()
 			}
 
+		} else {
+			res.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(res, "Not Success")
 		}
 
 	})
