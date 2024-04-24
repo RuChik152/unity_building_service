@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,18 +13,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var DEV_MODE bool = false
-
 func init() {
 
-	var env_url string
-	if DEV_MODE {
-		env_url = "../web_hendler/.env"
-	} else {
-		env_url = ".env"
-	}
-
-	if err := godotenv.Load(env_url); err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 		os.Exit(1)
 	} else {
@@ -46,7 +38,7 @@ func main() {
 
 	status, errSendFile := sendBuildToCloud(dataMap["href"].(string), ARG["-path"])
 	if errSendFile != nil {
-		log.Println("Ошибка отправки данных в YandexCloud")
+		log.Println("Ошибка отправки данных в YandexCloud", errSendFile)
 		os.Exit(1)
 	} else {
 		log.Println("Отправка данных в YandexCloud успешна: ", status)
@@ -66,7 +58,7 @@ func getTargetURL(name string, platform string) (map[string]interface{}, error) 
 	case "Win64":
 		url += "?path=BeliVR/Kagra_builds/PC/" + name
 	}
-
+	url += "&overwrite=true"
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -109,9 +101,8 @@ func sendBuildToCloud(url string, filePath string) (int, error) {
 	}
 	defer file.Close()
 
-	var buffer []byte
-	_, errRead := file.Read(buffer)
-	if errRead != nil {
+	buffer, err := io.ReadAll(file)
+	if err != nil {
 		return 0, errors.New(fmt.Sprint(err))
 	}
 
