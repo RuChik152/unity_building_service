@@ -49,7 +49,7 @@ func Manager() {
 					}
 					switch platform {
 					case "Android":
-						cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 1, 2)
+						cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 365, 2)
 						for _, device := range targetPlatform {
 							if STATUS_RESET {
 								break
