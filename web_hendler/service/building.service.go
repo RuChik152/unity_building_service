@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"time"
 	"web_hendler/bot"
 	"web_hendler/proc"
@@ -54,7 +53,7 @@ func Manager() {
 								break
 							}
 							runCopyGeneralSettings(device)
-							runBuild(platform, device)
+							//runBuild(platform, device)
 
 							if STATUS_RESET {
 								break
@@ -64,7 +63,7 @@ func Manager() {
 
 							uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
 
-							log.Println("FINALY: ", pathListFile)
+							log.Println("Получен список путей файлам для загрузки: ", pathListFile)
 
 							var app_id string
 							var app_secret string
@@ -73,35 +72,32 @@ func Manager() {
 							case "PICO":
 								app_id = PICO_APP_ID
 								app_secret = PICO_APP_SECRET
-								break
+
 							case "OCULUS":
 								app_id = OCULUS_APP_ID
 								app_secret = OCULUS_APP_SECRET
-								break
+
 							}
 
-							go func(dev string) {
-								if pathListFile.APK != "" && pathListFile.OBB != "" {
-									uploader.UploderBuild(dev, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
-								} else {
-									log.Println("Не найден APK или OBB")
-									log.Println("Получен путь к APK: ", pathListFile.APK)
-									log.Println("Получен путь к OBB: ", pathListFile.OBB)
-								}
-							}(device)
+							if pathListFile.APK != "" && pathListFile.OBB != "" {
+								uploader.UploderBuild(device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
+							} else {
+								log.Println("Не найден APK или OBB")
+								log.Println("Получен путь к APK: ", pathListFile.APK)
+								log.Println("Получен путь к OBB: ", pathListFile.OBB)
+							}
+
 						}
 					}
 				}
 
 				if !STATUS_RESET {
 
-					bot.ResultMsgBuild.Mu.Lock()
-					if strMessage, err := bot.ResultMsgBuild.MarshalJSON(); err != nil {
+					if strMessage, err := json.Marshal(bot.ResultMsgBuild); err != nil {
 						log.Println("Ошибка преобразования данных для отправки боту")
 					} else {
 						bot.SendMessageBot(string(strMessage), "#pipline_check")
 					}
-					bot.ResultMsgBuild.Mu.Unlock()
 
 				}
 
@@ -315,12 +311,12 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = "⚠️ Не успешно"
-				break
+				bot.ResultMsgBuild.PicoMessage.Message = device + "  :⚠️ Не успешно"
+
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = "⚠️ Не успешно"
-				break
+				bot.ResultMsgBuild.OculusMessage.Message = device + "  :⚠️ Не успешно"
+
 			}
 			STATUS_BUILDING = false
 			log.Println("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err)
@@ -329,12 +325,12 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = "⚠️ Не успешно"
-				break
+				bot.ResultMsgBuild.PicoMessage.Message = device + "  :⚠️ Не успешно"
+
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = "⚠️ Не успешно"
-				break
+				bot.ResultMsgBuild.OculusMessage.Message = device + "  :⚠️ Не успешно"
+
 			}
 			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
 			STATUS_BUILDING = false
@@ -346,16 +342,12 @@ func runBuild(platform string, device string) {
 		switch device {
 		case "PICO":
 			bot.ResultMsgBuild.PicoMessage.Status = true
-			bot.ResultMsgBuild.PicoMessage.Message = "✅ Успешно"
-			break
+			bot.ResultMsgBuild.PicoMessage.Message = device + "  :✅ Успешно"
+
 		case "OCULUS":
 			bot.ResultMsgBuild.OculusMessage.Status = true
-			bot.ResultMsgBuild.OculusMessage.Message = "✅ Успешно"
-			break
+			bot.ResultMsgBuild.OculusMessage.Message = device + "  :✅ Успешно"
+
 		}
 	}
-}
-
-func getOS() string {
-	return runtime.GOOS
 }

@@ -7,17 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 )
-
-type ResultMsgBuildForJSON struct {
-	Event         string           `json:"event"`
-	OculusMessage DeviceBotMessage `json:"oculus"`
-	PicoMessage   DeviceBotMessage `json:"pico"`
-	PCMessage     DeviceBotMessage `json:"pc"`
-	Info          BuildInfo        `json:"info"`
-}
 
 type BotMessage struct {
 	Event         string           `json:"event"`
@@ -25,20 +16,6 @@ type BotMessage struct {
 	PicoMessage   DeviceBotMessage `json:"pico"`
 	PCMessage     DeviceBotMessage `json:"pc"`
 	Info          BuildInfo        `json:"info"`
-
-	Mu sync.Mutex
-}
-
-func (bm *BotMessage) MarshalJSON() ([]byte, error) {
-	tempStruct := ResultMsgBuildForJSON{
-		Event:         bm.Event,
-		OculusMessage: bm.OculusMessage,
-		PicoMessage:   bm.PicoMessage,
-		PCMessage:     bm.PCMessage,
-		Info:          bm.Info,
-	}
-
-	return json.Marshal(tempStruct)
 }
 
 type DeviceBotMessage struct {
@@ -79,6 +56,8 @@ type CommitData struct {
 }
 
 func SendMessageBot(msg string, tg string) {
+	log.Println("Сообщение для бота: ", msg)
+
 	bot_port, empty_bot_port := os.LookupEnv("BOT_PORT")
 	bot_url, empty_bot_url := os.LookupEnv("BOT_URL")
 

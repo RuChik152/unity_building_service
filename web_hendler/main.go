@@ -109,6 +109,7 @@ func init() {
 }
 
 func main() {
+
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: appRouter(),
