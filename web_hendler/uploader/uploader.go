@@ -118,9 +118,9 @@ func UploderBuild(device string, apk string, obb string, app_id string, app_secr
 		log.Println("Не успешная загрузка сборки для: ", device)
 		switch device {
 		case "PICO":
-			bot.ResultMsgBuild.PicoMessage.SendBuild = device + ":⚠️ Не успешно. " + string(output)
+			bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
 		case "OCULUS":
-			bot.ResultMsgBuild.OculusMessage.SendBuild = device + ":⚠️ Не успешно. " + string(output)
+			bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
 		}
 		log.Println("Ошибка загрузки: ", string(output), "\n", err)
 		return
@@ -128,10 +128,10 @@ func UploderBuild(device string, apk string, obb string, app_id string, app_secr
 		log.Println("Успешная загрузка сборки для ", device)
 		switch device {
 		case "PICO":
-			bot.ResultMsgBuild.PicoMessage.SendBuild = device + ":✅ Успешно. " + string(output)
+			bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ✅ Успешно. " + string(output)
 		case "OCULUS":
 
-			bot.ResultMsgBuild.OculusMessage.SendBuild = device + ":✅ Успешно. " + string(output)
+			bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ✅ Успешно. " + string(output)
 
 		}
 		log.Println(string(output))

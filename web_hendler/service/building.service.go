@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 	"web_hendler/bot"
+	"web_hendler/cleaner"
 	"web_hendler/proc"
 	"web_hendler/uploader"
 )
@@ -48,10 +49,12 @@ func Manager() {
 					}
 					switch platform {
 					case "Android":
+						cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 365, 2)
 						for _, device := range targetPlatform {
 							if STATUS_RESET {
 								break
 							}
+
 							runCopyGeneralSettings(device)
 							runBuild(platform, device)
 
@@ -311,11 +314,11 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + "  :⚠️ Не успешно"
+				bot.ResultMsgBuild.PicoMessage.Message = device + " отправка: ⚠️ Не успешно"
 
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + "  :⚠️ Не успешно"
+				bot.ResultMsgBuild.OculusMessage.Message = device + " отправка: ⚠️ Не успешно"
 
 			}
 			STATUS_BUILDING = false
@@ -325,11 +328,11 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + "  :⚠️ Не успешно"
+				bot.ResultMsgBuild.PicoMessage.Message = device + " отправка: ⚠️ Не успешно"
 
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + "  :⚠️ Не успешно"
+				bot.ResultMsgBuild.OculusMessage.Message = device + " отправка: ⚠️ Не успешно"
 
 			}
 			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
@@ -342,11 +345,11 @@ func runBuild(platform string, device string) {
 		switch device {
 		case "PICO":
 			bot.ResultMsgBuild.PicoMessage.Status = true
-			bot.ResultMsgBuild.PicoMessage.Message = device + "  :✅ Успешно"
+			bot.ResultMsgBuild.PicoMessage.Message = device + " отправка: ✅ Успешно"
 
 		case "OCULUS":
 			bot.ResultMsgBuild.OculusMessage.Status = true
-			bot.ResultMsgBuild.OculusMessage.Message = device + "  :✅ Успешно"
+			bot.ResultMsgBuild.OculusMessage.Message = device + " отправка: ✅ Успешно"
 
 		}
 	}

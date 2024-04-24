@@ -106,6 +106,7 @@ func init() {
 		log.Println("Ошибка!!! Не установлен путь к JSON конфигу")
 		os.Exit(1)
 	}
+
 }
 
 func main() {
