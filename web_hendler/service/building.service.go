@@ -49,7 +49,7 @@ func Manager() {
 					}
 					switch platform {
 					case "Android":
-						cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 365, 2)
+						cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 5, 1, platform)
 						for _, device := range targetPlatform {
 							if STATUS_RESET {
 								break
@@ -314,11 +314,11 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + " отправка: ⚠️ Не успешно"
+				bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно"
 
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + " отправка: ⚠️ Не успешно"
+				bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно"
 
 			}
 			STATUS_BUILDING = false
@@ -328,11 +328,11 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + " отправка: ⚠️ Не успешно"
+				bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно"
 
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + " отправка: ⚠️ Не успешно"
+				bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно"
 
 			}
 			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
@@ -345,11 +345,11 @@ func runBuild(platform string, device string) {
 		switch device {
 		case "PICO":
 			bot.ResultMsgBuild.PicoMessage.Status = true
-			bot.ResultMsgBuild.PicoMessage.Message = device + " отправка: ✅ Успешно"
+			bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ✅ Успешно"
 
 		case "OCULUS":
 			bot.ResultMsgBuild.OculusMessage.Status = true
-			bot.ResultMsgBuild.OculusMessage.Message = device + " отправка: ✅ Успешно"
+			bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ✅ Успешно"
 
 		}
 	}

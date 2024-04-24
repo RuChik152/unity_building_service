@@ -99,6 +99,14 @@ func init() {
 		os.Exit(1)
 	}
 
+	service.PATH_CLOUD_MOD, _ = os.LookupEnv("PATH_CLOUD_MOD")
+	if service.PATH_CLOUD_MOD != "" {
+		log.Println("PATH_BUILDER_MOD:", service.PATH_CLOUD_MOD)
+	} else {
+		log.Println("Ошибка!!! Не установлен путь к исполняемому файлу модуля отправки файлов в облако")
+		os.Exit(1)
+	}
+
 	service.PATH_TO_CONFIG_JSON, _ = os.LookupEnv("PATH_TO_CONFIG_JSON")
 	if service.PATH_TO_CONFIG_JSON != "" {
 		log.Println("PATH_TO_CONFIG_JSON:", service.PATH_TO_CONFIG_JSON)
