@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"web_hendler/db"
 	"web_hendler/service"
 
 	"github.com/joho/godotenv"
@@ -125,5 +126,8 @@ func main() {
 	}
 
 	log.Printf("<<SERVER START>>\n http://localhost%s", server.Addr)
+
+	db.ConnectMongoDB()
+
 	log.Fatal(server.ListenAndServe())
 }

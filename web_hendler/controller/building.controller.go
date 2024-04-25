@@ -63,6 +63,7 @@ func checkDataCommit(res http.ResponseWriter, req *http.Request) bool {
 				}
 			}
 
+			bot.CommitMsg.SHA = fmt.Sprint(payload["after"])
 			bot.CommitMsg.Event = "commit"
 			bot.CommitMsg.AUTHOR = fmt.Sprintf("Автор: %s", author)
 			bot.CommitMsg.MESSAGE = fmt.Sprintf("Комментарий коммита: %s", coments)
