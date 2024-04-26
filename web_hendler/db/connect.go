@@ -21,24 +21,24 @@ var MONGO_DB_NAME string
 var MONGO_TYPE_CONNECT string
 
 func ConnectMongoDB() {
-
+	log.Println("1")
 	options := options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s/", MONGO_TYPE_CONNECT, MONGO_LOGIN, MONGO_PASS, MONGO_URL))
-
+	log.Println("2")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Ошибка подключения к базе данных: ", err)
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Ошибка проверки доступности доступа к БД: ", err)
 	} else {
 		fmt.Println("Connected to MongoDB!")
 		CLIENT = client
-		MONGO_DB = client.Database("local")
+		MONGO_DB = client.Database(MONGO_DB_NAME)
 	}
 }
 
