@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"web_hendler/db"
 	"web_hendler/service"
 
 	"github.com/joho/godotenv"
@@ -115,9 +116,40 @@ func init() {
 		os.Exit(1)
 	}
 
+	db.MONGO_LOGIN, _ = os.LookupEnv("MONGO_LOGIN")
+	if db.MONGO_LOGIN != "" {
+		log.Println("MONGO_LOGIN:", db.MONGO_LOGIN)
+	} else {
+		log.Println("Ошибка!!! Не установлен логин к MongoDB")
+		os.Exit(1)
+	}
+	db.MONGO_PASS, _ = os.LookupEnv("MONGO_PASS")
+	if db.MONGO_PASS != "" {
+		log.Println("MONGO_PASS:", "*************")
+	} else {
+		log.Println("Ошибка!!! Не установлен пароль к MongoDB")
+		os.Exit(1)
+	}
+	db.MONGO_URL, _ = os.LookupEnv("MONGO_URL")
+	if db.MONGO_URL != "" {
+		log.Println("MONGO_URL:", db.MONGO_URL)
+	} else {
+		log.Println("Ошибка!!! Не установлен URI для подключения к MongoDB")
+		os.Exit(1)
+	}
+	db.MONGO_DB_NAME, _ = os.LookupEnv("MONGO_DB_NAME")
+	if db.MONGO_DB_NAME != "" {
+		log.Println("MONGO_DB_NAME:", db.MONGO_DB_NAME)
+	} else {
+		log.Println("Ошибка!!! Не установлено имя БД в MongoDB")
+		os.Exit(1)
+	}
+
 }
 
 func main() {
+
+	defer db.DisconnectMongoDB()
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -125,5 +157,8 @@ func main() {
 	}
 
 	log.Printf("<<SERVER START>>\n http://localhost%s", server.Addr)
+
+	db.ConnectMongoDB()
+
 	log.Fatal(server.ListenAndServe())
 }

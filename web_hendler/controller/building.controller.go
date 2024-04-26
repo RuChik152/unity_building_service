@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"web_hendler/bot"
+	"web_hendler/db"
 	"web_hendler/service"
 
 	"github.com/gorilla/mux"
@@ -14,6 +15,10 @@ import (
 
 func BuildingController(r *mux.Router) {
 	buildRouter := r.PathPrefix("/building").Subrouter()
+
+	buildRouter.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+
+	})
 
 	buildRouter.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 
@@ -63,6 +68,11 @@ func checkDataCommit(res http.ResponseWriter, req *http.Request) bool {
 				}
 			}
 
+			db.Commit.AUTHOR = fmt.Sprintf("%s", author)
+			db.Commit.COMMENT = coments
+			db.Commit.SHA = fmt.Sprint(payload["after"])
+
+			bot.CommitMsg.SHA = fmt.Sprint(payload["after"])
 			bot.CommitMsg.Event = "commit"
 			bot.CommitMsg.AUTHOR = fmt.Sprintf("Автор: %s", author)
 			bot.CommitMsg.MESSAGE = fmt.Sprintf("Комментарий коммита: %s", coments)

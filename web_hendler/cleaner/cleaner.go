@@ -49,7 +49,7 @@ func DeleteOldFile(path string, day int, platform string) {
 	if age > (time.Duration(day) * 24 * time.Hour) {
 		//fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
 		if !fileInfo.IsDir() {
-			fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
+			//fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
 			if strings.HasSuffix(fileInfo.Name(), "apk") || strings.HasSuffix(fileInfo.Name(), "obb") {
 				if status := cloud(fileInfo.Name(), path, platform); status == 0 {
 					fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
