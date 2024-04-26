@@ -1,8 +1,14 @@
 package db
 
 type CommitData struct {
-	ID      string
+	ID      int
 	AUTHOR  string
 	COMMENT string
 	SHA     string
 }
+
+type CheckData struct {
+	ID int
+}
+
+var Commit CommitData

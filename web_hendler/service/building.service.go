@@ -2,13 +2,17 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 	"web_hendler/bot"
 	"web_hendler/cleaner"
+	"web_hendler/db"
 	"web_hendler/proc"
 	"web_hendler/uploader"
 )
@@ -33,12 +37,18 @@ func Manager() {
 		}
 
 		bot.ResultMsgBuild.Event = "build"
-		bot.ResultMsgBuild.Info.DataVersion = "-- NO_DATA"
 		bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
 		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
 
 		gitSubManager()
 		if CHECK_LIST.git == 0 {
+
+			countVersion, _ := GetCountCurrentVersion()
+			bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("version_%d", countVersion)
+			db.Commit.ID = countVersion
+
+			go db.InsertOneDbCommit(db.Commit, "commits")
+
 			runCopyKey()
 			runCreateGlobalConstant()
 			if CHECK_LIST.pre_build == 0 {
@@ -91,7 +101,9 @@ func Manager() {
 							}
 
 						}
+
 					}
+					STATUS_BUILDING = false
 				}
 
 				if !STATUS_RESET {
@@ -314,11 +326,11 @@ func runBuild(platform string, device string) {
 			switch device {
 			case "PICO":
 				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно"
+				bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
 
 			case "OCULUS":
 				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно"
+				bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно" + fmt.Sprintf("%s", err)
 
 			}
 			STATUS_BUILDING = false
@@ -352,5 +364,29 @@ func runBuild(platform string, device string) {
 			bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ✅ Успешно"
 
 		}
+	}
+}
+
+func GetCountCurrentVersion() (int, error) {
+	pathMudule, _ := os.LookupEnv("PATH_GIT_MOD")
+	if pathMudule == "" {
+		return 0, errors.New("не установлен путь к исполняемому файлу модуля для работы с GIT")
+	}
+
+	args := []string{
+		"count",
+	}
+	cmd := exec.Command(pathMudule, args...)
+	output, err := cmd.Output()
+	if err != nil {
+		return 0, errors.New("ошибка полчения данных от модуля GIT")
+	} else {
+
+		if i, err := strconv.Atoi(string(output)); err != nil {
+			return 0, errors.New("ошибка преобразования данных")
+		} else {
+			return i, nil
+		}
+
 	}
 }
