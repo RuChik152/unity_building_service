@@ -15,6 +15,7 @@ func appRouter() *mux.Router {
 	})
 
 	controller.BuildingController(router)
+	controller.CommitController(router)
 
 	return router
 }
