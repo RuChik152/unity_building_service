@@ -44,7 +44,7 @@ func Manager() {
 		if CHECK_LIST.git == 0 {
 
 			countVersion, _ := GetCountCurrentVersion()
-			bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("version_%d", countVersion)
+			bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("-- /version_%d", countVersion)
 			db.Commit.ID = countVersion
 
 			go db.InsertOneDbCommit(db.Commit, "commits")

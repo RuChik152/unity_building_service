@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -21,9 +22,7 @@ var MONGO_DB_NAME string
 var MONGO_TYPE_CONNECT string
 
 func ConnectMongoDB() {
-	log.Println("1")
 	options := options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s/", MONGO_TYPE_CONNECT, MONGO_LOGIN, MONGO_PASS, MONGO_URL))
-	log.Println("2")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -70,6 +69,23 @@ func InsertOneDbCommit(data CommitData, collectionName string) bool {
 		return true
 	}
 	return false
+}
+
+func GetCommitData(id int, collectionName string) (GetCommit, error) {
+	var result bson.M
+	err := getCollection(collectionName).FindOne(context.TODO(), bson.M{"id": id}).Decode(&result)
+	if err != nil {
+		return GetCommit{}, errors.New("ошибка получения данных по комиту из базы данных")
+	}
+
+	log.Println("TEST >>>> ", result)
+
+	return GetCommit{
+		ID:      int(result["id"].(int32)),
+		AUTHOR:  result["author"].(string),
+		MESSAGE: result["comment"].(string),
+		SHA:     result["sha"].(string),
+	}, nil
 }
 
 func getCollection(collectionName string) *mongo.Collection {
