@@ -145,6 +145,13 @@ func init() {
 		os.Exit(1)
 	}
 
+	db.MONGO_TYPE_CONNECT, _ = os.LookupEnv("MONGO_TYPE_CONNECT")
+	if db.MONGO_TYPE_CONNECT != "" {
+		log.Println("MONGO_TYPE_CONNECT:", db.MONGO_TYPE_CONNECT)
+	} else {
+		log.Println("Ошибка!!! Не установлено имя БД в MongoDB")
+		os.Exit(1)
+	}
 }
 
 func main() {

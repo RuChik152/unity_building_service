@@ -18,10 +18,11 @@ var MONGO_LOGIN string
 var MONGO_PASS string
 var MONGO_URL string
 var MONGO_DB_NAME string
+var MONGO_TYPE_CONNECT string
 
 func ConnectMongoDB() {
 
-	options := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s/", MONGO_LOGIN, MONGO_PASS, MONGO_URL))
+	options := options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s/", MONGO_TYPE_CONNECT, MONGO_LOGIN, MONGO_PASS, MONGO_URL))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
