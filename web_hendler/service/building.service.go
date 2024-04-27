@@ -36,116 +36,119 @@ func Manager() {
 			bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_start")
 		}
 
+		//Нужно указать заполнить значение event сразу, так как роме как для сборки эта структура не подходит.
 		bot.ResultMsgBuild.Event = "build"
 		bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
 		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
 
-		gitSubManager()
-		if CHECK_LIST.git == 0 {
+		go handleBuildProcess()
 
-			countVersion, _ := GetCountCurrentVersion()
-			bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("-- /version_%d", countVersion)
-			db.Commit.ID = countVersion
+	} else {
+		go handelRestartBuild()
+	}
+}
 
-			go db.InsertOneDbCommit(db.Commit, "commits")
+func handleBuildProcess() {
+	gitSubManager()
+	if CHECK_LIST.git == 0 {
 
-			runCopyKey()
-			runCreateGlobalConstant()
-			if CHECK_LIST.pre_build == 0 {
+		countVersion, _ := GetCountCurrentVersion()
+		bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("-- /version_%d", countVersion)
 
-				for platform, targetPlatform := range LIST_PLATFORM {
-					if STATUS_RESET {
-						break
-					}
-					switch platform {
-					case "Android":
-						cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 5, 1, platform)
-						for _, device := range targetPlatform {
-							if STATUS_RESET {
-								break
-							}
+		db.Commit.ID = countVersion
+		go db.InsertOneDbCommit(db.Commit, "commits")
 
-							runCopyGeneralSettings(device)
-							runBuild(platform, device)
+		runCopyKey()
+		runCreateGlobalConstant()
+		if CHECK_LIST.pre_build == 0 {
 
-							if STATUS_RESET {
-								break
-							}
-
-							var pathListFile uploader.UploaderList
-
-							uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
-
-							log.Println("Получен список путей файлам для загрузки: ", pathListFile)
-
-							var app_id string
-							var app_secret string
-
-							switch device {
-							case "PICO":
-								app_id = PICO_APP_ID
-								app_secret = PICO_APP_SECRET
-
-							case "OCULUS":
-								app_id = OCULUS_APP_ID
-								app_secret = OCULUS_APP_SECRET
-
-							}
-
-							if pathListFile.APK != "" && pathListFile.OBB != "" {
-								uploader.UploderBuild(device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
-							} else {
-								log.Println("Не найден APK или OBB")
-								log.Println("Получен путь к APK: ", pathListFile.APK)
-								log.Println("Получен путь к OBB: ", pathListFile.OBB)
-							}
-
+			for platform, targetPlatform := range LIST_PLATFORM {
+				if STATUS_RESET {
+					break
+				}
+				switch platform {
+				case "Android":
+					cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 5, 1, platform)
+					for _, device := range targetPlatform {
+						if STATUS_RESET {
+							break
 						}
 
+						runCopyGeneralSettings(device)
+						runBuild(platform, device)
+
+						if STATUS_RESET {
+							break
+						}
+
+						go func(dev string, msg bot.BuildResultMessage) {
+
+							done := make(chan bool)
+							messageBot := msg
+							go handelUploadBuild(dev, done, &messageBot)
+
+							go handelBotMessage(done, &messageBot)
+
+						}(device, bot.ResultBuildMessage)
+
 					}
-					STATUS_BUILDING = false
-				}
-
-				if !STATUS_RESET {
-
-					if strMessage, err := json.Marshal(bot.ResultMsgBuild); err != nil {
-						log.Println("Ошибка преобразования данных для отправки боту")
-					} else {
-						bot.SendMessageBot(string(strMessage), "#pipline_check")
-					}
 
 				}
-
-			} else {
-				log.Println("ERROR PREBUILD PROCCES")
-				return
+				STATUS_BUILDING = false
 			}
+
+			if !STATUS_RESET {
+
+				if strMessage, err := json.Marshal(bot.ResultMsgBuild); err != nil {
+					log.Println("Ошибка преобразования данных для отправки боту")
+				} else {
+					bot.SendMessageBot(string(strMessage), "#pipline_check")
+				}
+
+			}
+
 		} else {
-			log.Println("ERROR GIT PROCCESS")
+			log.Println("ERROR PREBUILD PROCCES")
 			return
 		}
 	} else {
-
-		bot.StandartMsg.Event = "allow"
-		bot.StandartMsg.Message = "Сборка уже ведеться, выполняю перезапуск..."
-
-		strStartMsgBot, err := json.Marshal(bot.StandartMsg)
-		if err != nil {
-			log.Println("Ошибка преобразования данных для запроса к боту")
-		} else {
-			bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_restart")
-		}
-
-		STATUS_BUILDING = false
-		STATUS_RESET = true
-		proc.DestroyedBuilding(PROCCES_BUILDING.Process.Pid)
-
-		time.Sleep(10 * time.Second)
-
-		STATUS_RESET = false
-		log.Println("PID>>>", PID_PROCCES_BUILDING)
-		Manager()
+		log.Println("ERROR GIT PROCCESS")
+		return
 	}
+}
+
+func handelBotMessage(done chan bool, msg *bot.BuildResultMessage) {
+	defer close(done)
+	if <-done {
+		if data, err := json.Marshal(msg); err != nil {
+			log.Println("handelBotMessage: Ошибка преобразования данных")
+		} else {
+			go bot.SendMessageBot(string(data), "#pipline_check")
+		}
+	}
+
+}
+
+func handelRestartBuild() {
+	bot.StandartMsg.Event = "allow"
+	bot.StandartMsg.Message = "Сборка уже ведеться, выполняю перезапуск..."
+
+	strStartMsgBot, err := json.Marshal(bot.StandartMsg)
+	if err != nil {
+		log.Println("Ошибка преобразования данных для запроса к боту")
+	} else {
+		bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_restart")
+	}
+
+	STATUS_BUILDING = false
+	STATUS_RESET = true
+	proc.DestroyedBuilding(PROCCES_BUILDING.Process.Pid)
+
+	time.Sleep(10 * time.Second)
+
+	STATUS_RESET = false
+	log.Println("PID>>>", PID_PROCCES_BUILDING)
+	Manager()
 }
 
 func gitSubManager() {
@@ -388,5 +391,36 @@ func GetCountCurrentVersion() (int, error) {
 			return i, nil
 		}
 
+	}
+}
+
+func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessage) {
+	var pathListFile uploader.UploaderList
+
+	uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
+
+	log.Println("Получен список путей файлам для загрузки: ", pathListFile)
+
+	var app_id string
+	var app_secret string
+
+	switch device {
+	case "PICO":
+		app_id = PICO_APP_ID
+		app_secret = PICO_APP_SECRET
+
+	case "OCULUS":
+		app_id = OCULUS_APP_ID
+		app_secret = OCULUS_APP_SECRET
+
+	}
+
+	if pathListFile.APK != "" && pathListFile.OBB != "" {
+		uploader.UploderBuild(msg, device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
+		done <- true
+	} else {
+		log.Println("Не найден APK или OBB")
+		log.Println("Получен путь к APK: ", pathListFile.APK)
+		log.Println("Получен путь к OBB: ", pathListFile.OBB)
 	}
 }

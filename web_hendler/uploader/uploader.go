@@ -94,7 +94,7 @@ func checkOldFile(list []fs.DirEntry, desDirBuild string) (string, error) {
 	return filepath.Join(desDirBuild, myfile.Name()), nil
 }
 
-func UploderBuild(device string, apk string, obb string, app_id string, app_secret string, chanel string) {
+func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb string, app_id string, app_secret string, chanel string) {
 
 	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
 	if pathMudule == "" {
@@ -118,9 +118,11 @@ func UploderBuild(device string, apk string, obb string, app_id string, app_secr
 		log.Println("Не успешная загрузка сборки для: ", device)
 		switch device {
 		case "PICO":
-			bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
+			//bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
+			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
 		case "OCULUS":
-			bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
+			//bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
+			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
 		}
 		log.Println("Ошибка загрузки: ", string(output), "\n", err)
 		return
@@ -128,11 +130,11 @@ func UploderBuild(device string, apk string, obb string, app_id string, app_secr
 		log.Println("Успешная загрузка сборки для ", device)
 		switch device {
 		case "PICO":
-			bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ✅ Успешно."
+			//bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ✅ Успешно."
+			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ✅ Успешно."
 		case "OCULUS":
-
-			bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ✅ Успешно."
-
+			//bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ✅ Успешно."
+			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ✅ Успешно."
 		}
 		log.Println(string(output))
 		return
