@@ -68,7 +68,7 @@ func handleBuildProcess() {
 				}
 				switch platform {
 				case "Android":
-					cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 5, 1, platform)
+					go cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 5, 1, platform)
 					for _, device := range targetPlatform {
 						if STATUS_RESET {
 							break
@@ -118,6 +118,7 @@ func handleBuildProcess() {
 }
 
 func handelBotMessage(done chan bool, msg *bot.BuildResultMessage) {
+
 	defer close(done)
 	if <-done {
 		if data, err := json.Marshal(msg); err != nil {
@@ -395,6 +396,7 @@ func GetCountCurrentVersion() (int, error) {
 }
 
 func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessage) {
+
 	var pathListFile uploader.UploaderList
 
 	uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
@@ -423,4 +425,5 @@ func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessag
 		log.Println("Получен путь к APK: ", pathListFile.APK)
 		log.Println("Получен путь к OBB: ", pathListFile.OBB)
 	}
+
 }
