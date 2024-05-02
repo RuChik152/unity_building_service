@@ -30,6 +30,14 @@ type BuildInfo struct {
 	PicoLogs    string `json:"pico"`
 }
 
+type BuildResultMessage struct {
+	Event  string           `json:"event"`
+	Device DeviceBotMessage `json:"device"`
+	Info   BuildInfo        `json:"info"`
+}
+
+var ResultBuildMessage BuildResultMessage
+
 var ResultMsgBuild BotMessage
 
 var StandartMsg StandartMsgBot
