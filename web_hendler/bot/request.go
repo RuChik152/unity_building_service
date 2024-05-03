@@ -3,6 +3,7 @@ package bot
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,22 +19,31 @@ type BotMessage struct {
 	Info          BuildInfo        `json:"info"`
 }
 
-type DeviceBotMessage struct {
-	Status    bool   `json:"status"`
-	Message   string `json:"message"`
-	SendBuild string `json:"sendStatus"`
-}
-
 type BuildInfo struct {
 	DataVersion string `json:"version"`
 	OculusLogs  string `json:"oculus"`
 	PicoLogs    string `json:"pico"`
 }
 
+type DeviceBotMessage struct {
+	Status    bool   `json:"status"`
+	Message   string `json:"message"`
+	SendBuild string `json:"sendStatus"`
+}
+
+type DeviceInfo struct {
+	Log string `json:"log"`
+}
+
+type DeviceMessage struct {
+	BuildInfo string `json:"build"`
+	SendInfo  string `json:"send"`
+}
+
 type BuildResultMessage struct {
-	Event  string           `json:"event"`
-	Device DeviceBotMessage `json:"device"`
-	Info   BuildInfo        `json:"info"`
+	Event  string        `json:"event"`
+	Device DeviceMessage `json:"device"`
+	Info   DeviceInfo    `json:"info"`
 }
 
 var ResultBuildMessage BuildResultMessage
@@ -90,6 +100,38 @@ func SendMessageBot(msg string, tg string) {
 			defer resp.Body.Close()
 
 			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Println("::Ошибка чтения ответа: ", err)
+			} else {
+				log.Println("::Получен ответ от бота: ", string(body))
+			}
+		}
+
+	} else {
+		log.Println("Отсуствую данные для подключния к боту")
+	}
+}
+
+func SendMsgBot(msg *BuildResultMessage) {
+	log.Println("Сообщение для бота: ", msg)
+
+	bot_port, empty_bot_port := os.LookupEnv("BOT_PORT")
+	bot_url, empty_bot_url := os.LookupEnv("BOT_URL")
+
+	if empty_bot_port && empty_bot_url {
+
+		payload, err := json.Marshal(msg)
+		if err != nil {
+			log.Println("Ошибка преобразования тела звпроса для бота в JSON формат данных")
+		}
+
+		resp, err := http.Post(bot_url+":"+bot_port+"/building/result", "application/json", bytes.NewBuffer(payload))
+		if err != nil {
+			log.Println("Ошибка отправки сообщения боту")
+		} else {
+			defer resp.Body.Close()
+
+			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				log.Println("::Ошибка чтения ответа: ", err)
 			} else {

@@ -26,20 +26,22 @@ func Manager() {
 
 	if !STATUS_BUILDING {
 
-		bot.StandartMsg.Event = "allow"
-		bot.StandartMsg.Message = "Запускаю сборку..."
+		// bot.StandartMsg.Event = "allow"
+		// bot.StandartMsg.Message = "Запускаю сборку..."
 
-		strStartMsgBot, err := json.Marshal(bot.StandartMsg)
-		if err != nil {
-			log.Println("Ошибка преобразования данных для запроса к боту")
-		} else {
-			bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_start")
-		}
+		// strStartMsgBot, err := json.Marshal(bot.StandartMsg)
+		// if err != nil {
+		// 	log.Println("Ошибка преобразования данных для запроса к боту")
+		// } else {
+		// 	bot.SendMessageBot(string(strStartMsgBot), "#pipline_build_start")
+		// }
 
 		//Нужно указать заполнить значение event сразу, так как роме как для сборки эта структура не подходит.
-		bot.ResultMsgBuild.Event = "build"
-		bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
-		bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
+		// bot.ResultMsgBuild.Event = "build"
+		// bot.ResultMsgBuild.Info.OculusLogs = "-- NO_DATA"
+		// bot.ResultMsgBuild.Info.PicoLogs = "-- NO_DATA"
+
+		bot.ResultBuildMessage.Event = "build"
 
 		go handleBuildProcess()
 
@@ -53,7 +55,8 @@ func handleBuildProcess() {
 	if CHECK_LIST.git == 0 {
 
 		countVersion, _ := GetCountCurrentVersion()
-		bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("-- /version_%d", countVersion)
+		// bot.ResultMsgBuild.Info.DataVersion = fmt.Sprintf("-- /version_%d", countVersion)
+		bot.ResultBuildMessage.Info.Log = fmt.Sprintf("-- /version_%d", countVersion)
 
 		db.Commit.ID = countVersion
 		go db.InsertOneDbCommit(db.Commit, "commits")
@@ -121,11 +124,13 @@ func handelBotMessage(done chan bool, msg *bot.BuildResultMessage) {
 
 	defer close(done)
 	if <-done {
-		if data, err := json.Marshal(msg); err != nil {
-			log.Println("handelBotMessage: Ошибка преобразования данных")
-		} else {
-			go bot.SendMessageBot(string(data), "#pipline_check")
-		}
+		go bot.SendMsgBot(msg)
+		// if data, err := json.Marshal(msg); err != nil {
+		// 	log.Println("handelBotMessage: Ошибка преобразования данных")
+		// } else {
+		// 	go bot.SendMessageBot(string(data), "#pipline_check")
+
+		// }
 	}
 
 }
@@ -329,12 +334,14 @@ func runBuild(platform string, device string) {
 		if err != nil {
 			switch device {
 			case "PICO":
-				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
+				// bot.ResultMsgBuild.PicoMessage.Status = false
+				// bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
+				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
 
 			case "OCULUS":
-				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно" + fmt.Sprintf("%s", err)
+				// bot.ResultMsgBuild.OculusMessage.Status = false
+				// bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно" + fmt.Sprintf("%s", err)
+				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
 
 			}
 			STATUS_BUILDING = false
@@ -343,13 +350,14 @@ func runBuild(platform string, device string) {
 		} else {
 			switch device {
 			case "PICO":
-				bot.ResultMsgBuild.PicoMessage.Status = false
-				bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно"
+				// bot.ResultMsgBuild.PicoMessage.Status = false
+				// bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ⚠️ Не успешно"
+				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно"
 
 			case "OCULUS":
-				bot.ResultMsgBuild.OculusMessage.Status = false
-				bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно"
-
+				// bot.ResultMsgBuild.OculusMessage.Status = false
+				// bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ⚠️ Не успешно"
+				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно"
 			}
 			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
 			STATUS_BUILDING = false
@@ -360,12 +368,14 @@ func runBuild(platform string, device string) {
 	} else {
 		switch device {
 		case "PICO":
-			bot.ResultMsgBuild.PicoMessage.Status = true
-			bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ✅ Успешно"
+			// bot.ResultMsgBuild.PicoMessage.Status = true
+			// bot.ResultMsgBuild.PicoMessage.Message = device + " сборка: ✅ Успешно"
+			bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ✅ Успешно"
 
 		case "OCULUS":
-			bot.ResultMsgBuild.OculusMessage.Status = true
-			bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ✅ Успешно"
+			// bot.ResultMsgBuild.OculusMessage.Status = true
+			// bot.ResultMsgBuild.OculusMessage.Message = device + " сборка: ✅ Успешно"
+			bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ✅ Успешно"
 
 		}
 	}

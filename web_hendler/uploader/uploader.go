@@ -119,10 +119,10 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 		switch device {
 		case "PICO":
 			//bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
-			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
+			bot.ResultBuildMessage.Device.SendInfo = device + " отправка: ⚠️ Не успешно. " + string(output)
 		case "OCULUS":
 			//bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
-			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ⚠️ Не успешно. " + string(output)
+			bot.ResultBuildMessage.Device.SendInfo = device + " отправка: ⚠️ Не успешно. " + string(output)
 		}
 		log.Println("Ошибка загрузки: ", string(output), "\n", err)
 		return
@@ -131,10 +131,10 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 		switch device {
 		case "PICO":
 			//bot.ResultMsgBuild.PicoMessage.SendBuild = device + " отправка: ✅ Успешно."
-			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ✅ Успешно."
+			bot.ResultBuildMessage.Device.SendInfo = device + " отправка: ✅ Успешно."
 		case "OCULUS":
 			//bot.ResultMsgBuild.OculusMessage.SendBuild = device + " отправка: ✅ Успешно."
-			bot.ResultBuildMessage.Device.SendBuild = device + " отправка: ✅ Успешно."
+			bot.ResultBuildMessage.Device.SendInfo = device + " отправка: ✅ Успешно."
 		}
 		log.Println(string(output))
 		return
