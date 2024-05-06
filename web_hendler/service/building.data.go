@@ -21,7 +21,7 @@ var PATH_TO_CONFIG_JSON string
 var MAP_CONFIG_DATA map[string]string
 
 var LIST_PLATFORM map[string][]string = map[string][]string{
-	"Android": {"PICO", "OCULUS"},
+	"Android": {"OCULUS", "PICO"},
 	"Win64":   {"PC"},
 }
 
