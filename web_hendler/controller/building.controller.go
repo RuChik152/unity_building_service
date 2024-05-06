@@ -80,7 +80,8 @@ func checkDataCommit(res http.ResponseWriter, req *http.Request) bool {
 			if err != nil {
 				log.Println("Ошибка декодирования: ", err)
 			} else {
-				bot.SendMessageBot(string(commitData), "#pipline_event")
+				bot.SendMsgBot(&commitData)
+				//bot.SendMessageBot(string(commitData), "#pipline_event")
 			}
 
 			return true
