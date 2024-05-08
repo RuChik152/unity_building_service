@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+var AGE_FILE string
+
 /*
 Сканирует указаный каталог на указанную глубину, удаляет из него файлы коорые старше указанного времени
 */
@@ -36,9 +38,9 @@ func DeleteOldFile(path string, day int, platform string) {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Printf("[WEB_HENDLER][CLEANER] Путь %s не существует\n", path)
+			log.Printf("[WEB_HENDLER][CLEANER] Путь %s не существует\n", path)
 		} else {
-			fmt.Printf("[WEB_HENDLER][CLEANER] Ошибка при получении информации о пути %s: %s\n", path, err)
+			log.Printf("[WEB_HENDLER][CLEANER] Ошибка при получении информации о пути %s: %s\n", path, err)
 		}
 		return
 	}
@@ -47,19 +49,14 @@ func DeleteOldFile(path string, day int, platform string) {
 	age := time.Since(modeTime)
 
 	if age > (time.Duration(day) * 24 * time.Hour) {
-		//fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
 		if !fileInfo.IsDir() {
-			//fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
 			if strings.HasSuffix(fileInfo.Name(), "apk") || strings.HasSuffix(fileInfo.Name(), "obb") {
 				if status := cloud(fileInfo.Name(), path, platform); status == 0 {
-					fmt.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
+					log.Printf("[WEB_HENDLER][CLEANER] Удаляю папку или файл %s, старше %d дней \n", path, day)
 					os.Remove(path)
 				}
 			}
 		}
-	} else {
-		fmt.Printf("[WEB_HENDLER][CLEANER] Папка или файл %s, младше %d дней \n", path, day)
-
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"web_hendler/cleaner"
 	"web_hendler/db"
 	"web_hendler/service"
 
@@ -150,6 +151,14 @@ func init() {
 		log.Println("MONGO_TYPE_CONNECT:", db.MONGO_TYPE_CONNECT)
 	} else {
 		log.Println("Ошибка!!! Не установлено имя БД в MongoDB")
+		os.Exit(1)
+	}
+
+	cleaner.AGE_FILE, _ = os.LookupEnv("AGE_FILE")
+	if cleaner.AGE_FILE != "" {
+		log.Println("AGE_FILE:", cleaner.AGE_FILE)
+	} else {
+		log.Println("Ошибка!!! Не установлен возраст файлов для Cleaner")
 		os.Exit(1)
 	}
 }

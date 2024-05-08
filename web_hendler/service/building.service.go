@@ -55,7 +55,12 @@ func handleBuildProcess() {
 				}
 				switch platform {
 				case "Android":
-					go cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, 15, 1, platform)
+					if age, err := strconv.Atoi(cleaner.AGE_FILE); err != nil {
+						log.Println("Ошибка преобразования значения возраста файлов")
+					} else {
+						go cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, age, 1, platform)
+					}
+
 					for _, device := range targetPlatform {
 						if STATUS_RESET {
 							break
@@ -72,11 +77,12 @@ func handleBuildProcess() {
 
 							done := make(chan bool)
 							messageBot := msg
-							log.Println(" AFTE UPLOADER >>> ", messageBot)
-							go handelUploadBuild(dev, done, &messageBot)
-							log.Println(" BEFORE UPLOADER >>> ", messageBot)
+							if CHECK_LIST.building == 0 {
+								go handelUploadBuild(dev, done, &messageBot)
+							} else {
+								done <- true
+							}
 							go handelBotMessage(done, &messageBot)
-							log.Println(" MESSAGE >>> ", messageBot)
 
 						}(device, bot.ResultBuildMessage)
 
@@ -350,10 +356,10 @@ func runBuild(platform string, device string) {
 		switch device {
 		case "PICO":
 			bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ✅ Успешно"
-
+			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
 		case "OCULUS":
 			bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ✅ Успешно"
-
+			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
 		}
 	}
 }
@@ -406,11 +412,11 @@ func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessag
 
 	if pathListFile.APK != "" && pathListFile.OBB != "" {
 		uploader.UploderBuild(msg, device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
-		done <- true
 	} else {
 		log.Println("Не найден APK или OBB")
 		log.Println("Получен путь к APK: ", pathListFile.APK)
 		log.Println("Получен путь к OBB: ", pathListFile.OBB)
 	}
+	done <- true
 
 }
