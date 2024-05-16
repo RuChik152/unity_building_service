@@ -44,7 +44,6 @@ func handleBuildProcess() {
 
 		db.Commit.ID = countVersion
 		go db.InsertOneDbCommit(db.Commit, "commits")
-
 		runCopyKey()
 		runCreateGlobalConstant()
 		if CHECK_LIST.pre_build == 0 {
@@ -87,7 +86,34 @@ func handleBuildProcess() {
 						}(device, bot.ResultBuildMessage)
 
 					}
+				case "Win64":
+					for _, device := range targetPlatform {
+						if STATUS_RESET {
+							break
+						}
 
+						runPCBuild(platform, device)
+
+						if STATUS_RESET {
+							break
+						}
+
+						log.Println("<<Сборка и отправка для PC завершилась>>")
+						log.Println(bot.ResultBuildMessage)
+
+						// go func(dev string, msg bot.BuildResultMessage) {
+
+						// 	done := make(chan bool)
+						// 	messageBot := msg
+						// 	if CHECK_LIST.building == 0 {
+						// 		go handelUploadBuild(dev, done, &messageBot)
+						// 	} else {
+						// 		done <- true
+						// 	}
+						// 	go handelBotMessage(done, &messageBot)
+
+						// }(device, bot.ResultBuildMessage)
+					}
 				}
 				STATUS_BUILDING = false
 			}
@@ -294,76 +320,6 @@ func runCreateGlobalConstant() {
 	CHECK_LIST.pre_build = runCreateGlobalConstant.ProcessState.ExitCode()
 }
 
-func runBuild(platform string, device string) {
-
-	path_to_logs := PATH_TO_LOGS + device + ".log"
-
-	STATUS_BUILDING = true
-	createArgs := []string{
-		platform,
-		"Karga_VR",
-		DEST_ANDROID_BUILD_FOLDER,
-		path_to_logs,
-		PATH_TO_CONFIG_JSON,
-		device,
-	}
-
-	log.Println("Получены аргументы запуска: ", createArgs)
-
-	PROCCES_BUILDING = exec.Command(PATH_BUILDER_MOD, createArgs...)
-
-	err := PROCCES_BUILDING.Start()
-
-	if err != nil {
-		log.Println("ОШИБКА ЗАПУСКА СБОРКИ. ", "ERR: ", err)
-		STATUS_BUILDING = false
-		CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
-		return
-	}
-	PID_PROCCES_BUILDING = PROCCES_BUILDING.Process.Pid
-	log.Printf("PID запущенного процесса: %d", PROCCES_BUILDING.Process.Pid)
-
-	err = PROCCES_BUILDING.Wait()
-	if err != nil {
-		runBuilderOutput, err := PROCCES_BUILDING.Output()
-		if err != nil {
-			switch device {
-			case "PICO":
-				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
-
-			case "OCULUS":
-				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
-
-			}
-			STATUS_BUILDING = false
-			log.Println("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err)
-			return
-		} else {
-			switch device {
-			case "PICO":
-				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно"
-
-			case "OCULUS":
-				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно"
-			}
-			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
-			STATUS_BUILDING = false
-			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
-			return
-		}
-
-	} else {
-		switch device {
-		case "PICO":
-			bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ✅ Успешно"
-			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
-		case "OCULUS":
-			bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ✅ Успешно"
-			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
-		}
-	}
-}
-
 func GetCountCurrentVersion() (int, error) {
 	pathMudule, _ := os.LookupEnv("PATH_GIT_MOD")
 	if pathMudule == "" {
@@ -407,7 +363,6 @@ func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessag
 	case "OCULUS":
 		app_id = OCULUS_APP_ID
 		app_secret = OCULUS_APP_SECRET
-
 	}
 
 	if pathListFile.APK != "" && pathListFile.OBB != "" {

@@ -85,6 +85,15 @@ func init() {
 		os.Exit(1)
 	}
 
+	service.DEST_WIN_BUILD_FOLDER, _ = os.LookupEnv("PATH_TO_DESKTOP_BUILD_FOLDER")
+	if service.DEST_WIN_BUILD_FOLDER != "" {
+		service.DEST_WIN_BUILD_FOLDER = path.Join(service.DEST_WIN_BUILD_FOLDER + "\\")
+		log.Println("PATH_TO_DESKTOP_BUILD_FOLDER:", service.DEST_ANDROID_BUILD_FOLDER)
+	} else {
+		log.Println("Ошибка!!! Не установлен путь к каталогу для сборок под Desktop")
+		os.Exit(1)
+	}
+
 	service.PATH_TO_EDITOR, _ = os.LookupEnv("PATH_TO_EDITOR")
 	if service.PATH_TO_EDITOR != "" {
 		log.Println("PATH_TO_EDITOR:", service.PATH_TO_EDITOR)
