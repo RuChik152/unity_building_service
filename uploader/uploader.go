@@ -50,3 +50,21 @@ func uploaderPICO() int {
 		return 0
 	}
 }
+
+func uploaderSteam() int {
+	cliArguments := []string{
+		"+login", APP_ID,
+		"+run_app_build", "..\\scripts\\simple_app_build.vdf",
+		"+quit",
+	}
+
+	cmd := exec.Command(CLI_PATH, cliArguments...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Println("Ошибка загрузки: ", string(output), "\n", err)
+		return 1
+	} else {
+		log.Println(string(output))
+		return 0
+	}
+}

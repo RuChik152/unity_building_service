@@ -136,3 +136,34 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 		return
 	}
 }
+
+func UploaderDesktopBuild(msg *bot.BuildResultMessage, device string, app_id string, app_secret string) {
+	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
+	if pathMudule == "" {
+		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		return
+	}
+
+	runArgs := []string{
+		device,
+		app_id,
+		app_secret,
+	}
+
+	cmd := exec.Command(pathMudule, runArgs...)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Println("Не успешная загрузка сборки для: ", device)
+
+		msg.Device.SendInfo = device + " отправка: ⚠️ Не успешно. " + string(output)
+		log.Println("Ошибка загрузки: ", string(output), "\n", err)
+		return
+	} else {
+		log.Println("Успешная загрузка сборки для ", device)
+
+		msg.Device.SendInfo = device + " отправка: ✅ Успешно."
+		log.Println(string(output))
+		return
+	}
+}

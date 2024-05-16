@@ -27,6 +27,22 @@ func init() {
 		os.Exit(1)
 	}
 
+	service.STEAM_LOGIN, _ = os.LookupEnv("STEAM_LOGIN")
+	if service.STEAM_LOGIN != "" {
+		log.Println("STEAM_LOGIN:", service.STEAM_LOGIN)
+	} else {
+		log.Println("Ошибка!!! Не установлен LOGIN для STEAM")
+		os.Exit(1)
+	}
+
+	service.STEAM_PASS, _ = os.LookupEnv("STEAM_PASS")
+	if service.STEAM_PASS != "" {
+		log.Println("STEAM_PASS:", "******************")
+	} else {
+		log.Println("Ошибка!!! Не установлен PASS для STEAM")
+		os.Exit(1)
+	}
+
 	service.PICO_APP_ID, _ = os.LookupEnv("PICO_APP_ID")
 	if service.PICO_APP_ID != "" {
 		log.Println("PICO_APP_ID:", service.PICO_APP_ID)
@@ -82,6 +98,15 @@ func init() {
 
 	} else {
 		log.Println("Ошибка!!! Не установлен путь к каталогу для сборок под Android")
+		os.Exit(1)
+	}
+
+	service.DEST_WIN_BUILD_FOLDER, _ = os.LookupEnv("PATH_TO_DESKTOP_BUILD_FOLDER")
+	if service.DEST_WIN_BUILD_FOLDER != "" {
+		service.DEST_WIN_BUILD_FOLDER = path.Join(service.DEST_WIN_BUILD_FOLDER + "\\")
+		log.Println("PATH_TO_DESKTOP_BUILD_FOLDER:", service.DEST_ANDROID_BUILD_FOLDER)
+	} else {
+		log.Println("Ошибка!!! Не установлен путь к каталогу для сборок под Desktop")
 		os.Exit(1)
 	}
 
