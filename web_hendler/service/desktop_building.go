@@ -11,7 +11,7 @@ func runPCBuild(platform string, device string) {
 	path_to_logs := PATH_TO_LOGS + device + ".log"
 	createArgs := []string{
 		platform,
-		"Karga_VR",
+		"Karga",
 		DEST_WIN_BUILD_FOLDER,
 		path_to_logs,
 		PATH_TO_CONFIG_JSON,

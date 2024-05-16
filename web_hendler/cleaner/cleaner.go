@@ -128,3 +128,17 @@ func Slash() string {
 		return "//"
 	}
 }
+
+func RemoveAllFileDir(dir string) error {
+	log.Printf("Произвожу удаление файлов из дирректрории <<%s>> под сборку для STEAM\n", dir)
+	if files, err := filepath.Glob(filepath.Join(dir, "*")); err != nil {
+		return err
+	} else {
+		for _, file := range files {
+			if err := os.Remove(file); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}

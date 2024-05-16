@@ -92,27 +92,28 @@ func handleBuildProcess() {
 							break
 						}
 
+						cleaner.RemoveAllFileDir(DEST_WIN_BUILD_FOLDER)
 						runPCBuild(platform, device)
 
 						if STATUS_RESET {
 							break
 						}
 
-						log.Println("<<Сборка и отправка для PC завершилась>>")
-						log.Println(bot.ResultBuildMessage)
+						// log.Println("<<Сборка и отправка для PC завершилась>>")
+						// log.Println(bot.ResultBuildMessage)
 
-						// go func(dev string, msg bot.BuildResultMessage) {
+						go func(dev string, msg bot.BuildResultMessage) {
 
-						// 	done := make(chan bool)
-						// 	messageBot := msg
-						// 	if CHECK_LIST.building == 0 {
-						// 		go handelUploadBuild(dev, done, &messageBot)
-						// 	} else {
-						// 		done <- true
-						// 	}
-						// 	go handelBotMessage(done, &messageBot)
+							done := make(chan bool)
+							messageBot := msg
+							if CHECK_LIST.building == 0 {
+								go handelUploadBuild(dev, done, &messageBot)
+							} else {
+								done <- true
+							}
+							go handelBotMessage(done, &messageBot)
 
-						// }(device, bot.ResultBuildMessage)
+						}(device, bot.ResultBuildMessage)
 					}
 				}
 				STATUS_BUILDING = false
@@ -346,12 +347,6 @@ func GetCountCurrentVersion() (int, error) {
 
 func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessage) {
 
-	var pathListFile uploader.UploaderList
-
-	uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
-
-	log.Println("Получен список путей файлам для загрузки: ", pathListFile)
-
 	var app_id string
 	var app_secret string
 
@@ -363,15 +358,32 @@ func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessag
 	case "OCULUS":
 		app_id = OCULUS_APP_ID
 		app_secret = OCULUS_APP_SECRET
+	case "PC":
+		app_id = STEAM_LOGIN
+		app_secret = STEAM_PASS
 	}
 
-	if pathListFile.APK != "" && pathListFile.OBB != "" {
-		uploader.UploderBuild(msg, device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
-	} else {
-		log.Println("Не найден APK или OBB")
-		log.Println("Получен путь к APK: ", pathListFile.APK)
-		log.Println("Получен путь к OBB: ", pathListFile.OBB)
+	if device == "PICO" || device == "OCULUS" {
+		var pathListFile uploader.UploaderList
+
+		uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
+
+		log.Println("Получен список путей файлам для загрузки: ", pathListFile)
+
+		if pathListFile.APK != "" && pathListFile.OBB != "" {
+			uploader.UploderBuild(msg, device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
+		} else {
+			log.Println("Не найден APK или OBB")
+			log.Println("Получен путь к APK: ", pathListFile.APK)
+			log.Println("Получен путь к OBB: ", pathListFile.OBB)
+		}
+		done <- true
 	}
-	done <- true
+
+	if device == "PC" {
+		// нужна логика для упаковки и загрзуки в облако.
+		uploader.UploaderDesktopBuild(msg, device, app_id, app_secret)
+		done <- true
+	}
 
 }

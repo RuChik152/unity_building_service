@@ -21,11 +21,13 @@ var PATH_TO_CONFIG_JSON string
 var MAP_CONFIG_DATA map[string]string
 
 var LIST_PLATFORM map[string][]string = map[string][]string{
-	"Android": {"OCULUS", "PICO"},
-	"Win64":   {"PC"},
+	//"Android": {"OCULUS", "PICO"},
+	"Win64": {"PC"},
 }
 
 var PICO_APP_ID string
 var PICO_APP_SECRET string
 var OCULUS_APP_ID string
 var OCULUS_APP_SECRET string
+var STEAM_LOGIN string
+var STEAM_PASS string
