@@ -99,9 +99,6 @@ func handleBuildProcess() {
 							break
 						}
 
-						// log.Println("<<Сборка и отправка для PC завершилась>>")
-						// log.Println(bot.ResultBuildMessage)
-
 						go func(dev string, msg bot.BuildResultMessage) {
 
 							done := make(chan bool)
