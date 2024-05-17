@@ -7,12 +7,14 @@ import (
 	"path"
 	"web_hendler/cleaner"
 	"web_hendler/db"
+	"web_hendler/loger"
 	"web_hendler/service"
 
 	"github.com/joho/godotenv"
 )
 
 func init() {
+	loger.LogPrint.Module("WEB-HENDLER")
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 	} else {

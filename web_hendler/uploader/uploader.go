@@ -2,6 +2,7 @@ package uploader
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"strings"
 	"time"
 	"web_hendler/bot"
+	"web_hendler/loger"
 )
 
 type UploaderList struct {
@@ -34,14 +36,14 @@ func getListDir(query string, dirPath string) ([]fs.DirEntry, error) {
 
 	dir, err := os.Open(dirPath)
 	if err != nil {
-		log.Println("Ошибка доступа к директории: ", err)
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("Ошибка доступа к директории: ", err))
 		return nil, err
 	}
 	defer dir.Close()
 
 	files, err := dir.ReadDir(-1)
 	if err != nil {
-		log.Println("Ошибка чтения директории: ", err)
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("Ошибка чтения директории: ", err))
 		return nil, err
 	}
 
@@ -81,7 +83,7 @@ func checkOldFile(list []fs.DirEntry, desDirBuild string) (string, error) {
 	for _, file := range list {
 		infoFile, err := file.Info()
 		if err != nil {
-			log.Println("ошибка чтения файла ", err)
+			loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("ошибка чтения файла ", err))
 			continue
 		}
 		modTime := infoFile.ModTime()
@@ -98,7 +100,7 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 
 	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
 	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		loger.LogPrint.Package("UPLOADER").Log("Не установлен путь к исполняемому файлу модуля для работы с GIT")
 		return
 	}
 
@@ -115,14 +117,14 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Println("Не успешная загрузка сборки для: ", device)
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("Не успешная загрузка сборки для: ", device))
 		switch device {
 		case "PICO":
 			msg.Device.SendInfo = device + " отправка: ⚠️ Не успешно. " + string(output)
 		case "OCULUS":
 			msg.Device.SendInfo = device + " отправка: ⚠️ Не успешно. " + string(output)
 		}
-		log.Println("Ошибка загрузки: ", string(output), "\n", err)
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("Ошибка загрузки: ", string(output), "\n", err))
 		return
 	} else {
 		log.Println("Успешная загрузка сборки для ", device)
@@ -132,7 +134,7 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 		case "OCULUS":
 			msg.Device.SendInfo = device + " отправка: ✅ Успешно."
 		}
-		log.Println(string(output))
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint(string(output)))
 		return
 	}
 }
@@ -140,7 +142,7 @@ func UploderBuild(msg *bot.BuildResultMessage, device string, apk string, obb st
 func UploaderDesktopBuild(msg *bot.BuildResultMessage, device string, app_id string, app_secret string) {
 	pathMudule, _ := os.LookupEnv("PATH_UPLOADER_MOD")
 	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		loger.LogPrint.Package("UPLOADER").Log("Не установлен путь к исполняемому файлу модуля для работы с GIT")
 		return
 	}
 
@@ -154,16 +156,16 @@ func UploaderDesktopBuild(msg *bot.BuildResultMessage, device string, app_id str
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Println("Не успешная загрузка сборки для: ", device)
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("Не успешная загрузка сборки для: ", device))
 
 		msg.Device.SendInfo = device + " отправка: ⚠️ Не успешно. " + string(output)
-		log.Println("Ошибка загрузки: ", string(output), "\n", err)
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint("Ошибка загрузки: ", string(output), "\n", err))
 		return
 	} else {
 		log.Println("Успешная загрузка сборки для ", device)
 
 		msg.Device.SendInfo = device + " отправка: ✅ Успешно."
-		log.Println(string(output))
+		loger.LogPrint.Package("UPLOADER").Log(fmt.Sprint(string(output)))
 		return
 	}
 }

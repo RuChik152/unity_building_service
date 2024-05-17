@@ -2,11 +2,11 @@ package proc
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
+	"web_hendler/loger"
 
 	"github.com/shirou/gopsutil/process"
 )
@@ -27,7 +27,7 @@ func GetListChildProcces(pid int) []int {
 	cmd := exec.Command("wmic", cmdArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Println("Ошибка. ", string(output), "err: ", err)
+		loger.LogPrint.Package("PROC").Log(fmt.Sprint("Ошибка. ", string(output), "err: ", err))
 	}
 
 	outputStr := string(output)
@@ -41,7 +41,7 @@ func GetListChildProcces(pid int) []int {
 			if len(fields) > 0 {
 				number, err := strconv.Atoi(fields[0])
 				if err != nil {
-					log.Println("ERROR CONVERTING: ", err)
+					loger.LogPrint.Package("PROC").Log(fmt.Sprint("ERROR CONVERTING: ", err))
 				}
 
 				pidArray = append(pidArray, number)
@@ -55,23 +55,23 @@ func GetListChildProcces(pid int) []int {
 func DestroyedBuilding(pid int) {
 	p, err := process.NewProcess(int32(pid))
 	if err != nil {
-		fmt.Println("Ошибка при получении процесса:", err)
+		loger.LogPrint.Package("PROC").Log(fmt.Sprint("Ошибка при получении процесса:", err))
 		return
 	}
 
 	children, err := p.Children()
 	if err != nil {
-		fmt.Println("Ошибка при получении дочерних процессов:", err)
+		loger.LogPrint.Package("PROC").Log(fmt.Sprint("Ошибка при получении дочерних процессов:", err))
 		return
 	}
 
 	for _, child := range children {
 		if err := child.Terminate(); err != nil {
-			fmt.Println("Ошибка при завершении дочернего процесса:", err)
+			loger.LogPrint.Package("PROC").Log(fmt.Sprint("Ошибка при завершении дочернего процесса:", err))
 		}
 	}
 
 	if err := p.Terminate(); err != nil {
-		fmt.Println("Ошибка при завершении родительского процесса:", err)
+		loger.LogPrint.Package("PROC").Log(fmt.Sprint("Ошибка при завершении родительского процесса:", err))
 	}
 }

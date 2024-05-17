@@ -3,12 +3,14 @@ package bot
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"time"
+	"web_hendler/loger"
 )
 
 // type BotMessage struct {
@@ -74,7 +76,7 @@ type CommitData struct {
 }
 
 func SendMessageBot(msg string, tg string) {
-	log.Println("Сообщение для бота: ", msg)
+	loger.LogPrint.Package("BOT").Log(fmt.Sprint("Сообщение для бота: ", msg))
 
 	bot_port, empty_bot_port := os.LookupEnv("BOT_PORT")
 	bot_url, empty_bot_url := os.LookupEnv("BOT_URL")
@@ -95,7 +97,7 @@ func SendMessageBot(msg string, tg string) {
 
 		resp, err := http.Post(bot_url+":"+bot_port+"/echo_build", "application/json", bytes.NewBuffer(payload))
 		if err != nil {
-			log.Println("Ошибка отправки сообщения боту")
+			loger.LogPrint.Package("BOT").Log("Ошибка отправки сообщения боту")
 		} else {
 			defer resp.Body.Close()
 
@@ -113,7 +115,7 @@ func SendMessageBot(msg string, tg string) {
 }
 
 func SendMsgBot(msg *[]byte) {
-	log.Println("Сообщение для бота: ", msg)
+	loger.LogPrint.Package("BOT").Log(fmt.Sprint("Сообщение для бота: ", msg))
 
 	bot_port, empty_bot_port := os.LookupEnv("BOT_PORT")
 	bot_url, empty_bot_url := os.LookupEnv("BOT_URL")
@@ -127,7 +129,8 @@ func SendMsgBot(msg *[]byte) {
 
 		resp, err := http.Post(bot_url+":"+bot_port+"/building/result", "application/json", bytes.NewBuffer(*msg))
 		if err != nil {
-			log.Println("Ошибка отправки сообщения боту")
+			loger.LogPrint.Package("BOT").Log("Ошибка отправки сообщения боту")
+
 		} else {
 			defer resp.Body.Close()
 
