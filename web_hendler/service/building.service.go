@@ -13,6 +13,7 @@ import (
 	"web_hendler/bot"
 	"web_hendler/cleaner"
 	"web_hendler/db"
+	"web_hendler/loger"
 	"web_hendler/proc"
 	"web_hendler/uploader"
 )
@@ -55,7 +56,7 @@ func handleBuildProcess() {
 				switch platform {
 				case "Android":
 					if age, err := strconv.Atoi(cleaner.AGE_FILE); err != nil {
-						log.Println("Ошибка преобразования значения возраста файлов")
+						loger.LogPrint.Package("SERVICE").Log("Ошибка преобразования значения возраста файлов")
 					} else {
 						go cleaner.ScanOldFile(DEST_ANDROID_BUILD_FOLDER, age, 1, platform)
 					}
@@ -127,11 +128,11 @@ func handleBuildProcess() {
 			// }
 
 		} else {
-			log.Println("ERROR PREBUILD PROCCES")
+			loger.LogPrint.Package("SERVICE").Log("ERROR PREBUILD PROCCES")
 			return
 		}
 	} else {
-		log.Println("ERROR GIT PROCCESS")
+		loger.LogPrint.Package("SERVICE").Log("ERROR GIT PROCCESS")
 		return
 	}
 }
@@ -140,8 +141,7 @@ func handelBotMessage(done chan bool, msg *bot.BuildResultMessage) {
 
 	defer close(done)
 	if <-done {
-		log.Println("Отправил сообщение боту: ", msg)
-
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Отправил сообщение боту: ", msg))
 		if data, err := json.Marshal(msg); err != nil {
 			log.Panic("ошибка преобразования handelBotMessage")
 		} else {
@@ -172,7 +172,7 @@ func handelRestartBuild() {
 	time.Sleep(10 * time.Second)
 
 	STATUS_RESET = false
-	log.Println("PID>>>", PID_PROCCES_BUILDING)
+	loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("PID>>>", PID_PROCCES_BUILDING))
 	Manager()
 }
 
@@ -180,7 +180,7 @@ func gitSubManager() {
 
 	pathMudule, _ := os.LookupEnv("PATH_GIT_MOD")
 	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		loger.LogPrint.Package("SERVICE").Log("Не установлен путь к исполняемому файлу модуля для работы с GIT")
 		return
 	}
 
@@ -191,9 +191,10 @@ func gitSubManager() {
 	runGitFetch := exec.Command(pathMudule, gitArgsFetch...)
 	gitFetchOutput, err := runGitFetch.CombinedOutput()
 	if err != nil {
-		log.Println("Error FETCH: ", string(gitFetchOutput), "\n", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Error FETCH: ", string(gitFetchOutput), err))
+
 	} else {
-		log.Println(string(gitFetchOutput), "Status code: ", runGitFetch.ProcessState.ExitCode())
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(gitFetchOutput), "Status code: ", runGitFetch.ProcessState.ExitCode()))
 	}
 	CHECK_LIST.git = runGitFetch.ProcessState.ExitCode()
 
@@ -204,9 +205,9 @@ func gitSubManager() {
 	runGitReset := exec.Command(pathMudule, gitArgsReset...)
 	gitOutputReset, err := runGitReset.CombinedOutput()
 	if err != nil {
-		log.Println("Error RESET: ", string(gitOutputReset), "\n", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Error RESET: ", string(gitOutputReset), err))
 	} else {
-		log.Println(string(gitOutputReset), "Status code: ", runGitFetch.ProcessState.ExitCode())
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(gitOutputReset), "Status code: ", runGitFetch.ProcessState.ExitCode()))
 	}
 	CHECK_LIST.git = runGitFetch.ProcessState.ExitCode()
 
@@ -217,9 +218,9 @@ func gitSubManager() {
 	runGitPull := exec.Command(pathMudule, gitArgsPull...)
 	gitOutputPull, err := runGitPull.CombinedOutput()
 	if err != nil {
-		log.Println("Error PULL: ", string(gitOutputPull), "\n", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Error PULL: ", string(gitOutputPull), "\n", err))
 	} else {
-		log.Println(string(gitOutputPull), "Status code: ", runGitFetch.ProcessState.ExitCode())
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(gitOutputPull), "Status code: ", runGitFetch.ProcessState.ExitCode()))
 	}
 	CHECK_LIST.git = runGitFetch.ProcessState.ExitCode()
 }
@@ -228,7 +229,7 @@ func runCopyKey() {
 
 	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
 	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с PREBUILD")
+		loger.LogPrint.Package("SERVICE").Log("Не установлен путь к исполняемому файлу модуля для работы с PREBUILD")
 		return
 	}
 
@@ -251,9 +252,9 @@ func runCopyKey() {
 	runCopyKeyStore := exec.Command(pathMudule, copyKeyStore...)
 	copyOutputKey, err := runCopyKeyStore.CombinedOutput()
 	if err != nil {
-		log.Println("ERROR COPY KEYSTORE FILE: ", string(copyOutputKey), "\n", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("ERROR COPY KEYSTORE FILE: ", string(copyOutputKey), "\n", err))
 	} else {
-		log.Println(string(copyOutputKey), "Status code: ", runCopyKeyStore.ProcessState.ExitCode())
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(copyOutputKey), "Status code: ", runCopyKeyStore.ProcessState.ExitCode()))
 	}
 	CHECK_LIST.pre_build = runCopyKeyStore.ProcessState.ExitCode()
 }
@@ -262,7 +263,7 @@ func runCopyGeneralSettings(device string) {
 
 	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
 	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с PREBUILD")
+		loger.LogPrint.Package("SERVICE").Log("Не установлен путь к исполняемому файлу модуля для работы с PREBUILD")
 		return
 	}
 
@@ -288,9 +289,9 @@ func runCopyGeneralSettings(device string) {
 	runCopyGeneralSettings := exec.Command(pathMudule, copySettingsArgs...)
 	copyOutputSettings, err := runCopyGeneralSettings.CombinedOutput()
 	if err != nil {
-		log.Println("ERROR COPY GENERAL SETTINGS: ", string(copyOutputSettings), "\n", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("ERROR COPY GENERAL SETTINGS: ", string(copyOutputSettings), "\n", err))
 	} else {
-		log.Println(string(copyOutputSettings), "Status code: ", runCopyGeneralSettings.ProcessState.ExitCode())
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(copyOutputSettings), "Status code: ", runCopyGeneralSettings.ProcessState.ExitCode()))
 	}
 	CHECK_LIST.pre_build = runCopyGeneralSettings.ProcessState.ExitCode()
 }
@@ -299,7 +300,7 @@ func runCreateGlobalConstant() {
 
 	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
 	if pathMudule == "" {
-		log.Println("Не установлен путь к исполняемому файлу модуля для работы с GIT")
+		loger.LogPrint.Package("SERVICE").Log("Не установлен путь к исполняемому файлу модуля для работы с GIT")
 		return
 	}
 
@@ -311,9 +312,9 @@ func runCreateGlobalConstant() {
 	runCreateGlobalConstant := exec.Command(pathMudule, creatGlobalConstantArgs...)
 	creatGlobalConstantOutput, err := runCreateGlobalConstant.CombinedOutput()
 	if err != nil {
-		log.Println("ERROR CREAT CONSTANT: ", string(creatGlobalConstantOutput), "\n", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("ERROR CREAT CONSTANT: ", string(creatGlobalConstantOutput), "\n", err))
 	} else {
-		log.Println(string(creatGlobalConstantOutput), "Status code: ", runCreateGlobalConstant.ProcessState.ExitCode())
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(creatGlobalConstantOutput), "Status code: ", runCreateGlobalConstant.ProcessState.ExitCode()))
 	}
 	CHECK_LIST.pre_build = runCreateGlobalConstant.ProcessState.ExitCode()
 }
@@ -365,14 +366,15 @@ func handelUploadBuild(device string, done chan bool, msg *bot.BuildResultMessag
 
 		uploader.GetllistFile(device, DEST_ANDROID_BUILD_FOLDER, &pathListFile)
 
-		log.Println("Получен список путей файлам для загрузки: ", pathListFile)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Получен список путей файлам для загрузки: ", pathListFile))
 
 		if pathListFile.APK != "" && pathListFile.OBB != "" {
 			uploader.UploderBuild(msg, device, pathListFile.APK, pathListFile.OBB, app_id, app_secret, "ALPHA")
 		} else {
-			log.Println("Не найден APK или OBB")
-			log.Println("Получен путь к APK: ", pathListFile.APK)
-			log.Println("Получен путь к OBB: ", pathListFile.OBB)
+			loger.LogPrint.Package("SERVICE").Log("Не найден APK или OBB")
+			loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Получен путь к APK: ", pathListFile.APK))
+			loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Получен путь к OBB: ", pathListFile.OBB))
+
 		}
 		done <- true
 	}

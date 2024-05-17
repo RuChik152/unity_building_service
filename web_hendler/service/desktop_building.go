@@ -5,6 +5,7 @@ import (
 	"log"
 	"os/exec"
 	"web_hendler/bot"
+	"web_hendler/loger"
 )
 
 func runPCBuild(platform string, device string) {
@@ -18,20 +19,22 @@ func runPCBuild(platform string, device string) {
 		device,
 	}
 
-	log.Println("Получены аргументы запуска: ", createArgs)
+	loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("Получены аргументы запуска: ", createArgs))
+
+	log.Println()
 	PROCCES_BUILDING = exec.Command(PATH_BUILDER_MOD, createArgs...)
 
 	err := PROCCES_BUILDING.Start()
 
 	if err != nil {
-		log.Println("ОШИБКА ЗАПУСКА СБОРКИ. ", "ERR: ", err)
+		loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("ОШИБКА ЗАПУСКА СБОРКИ. ", "ERR: ", err))
 		STATUS_BUILDING = false
 		CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
 		return
 	}
 
 	PID_PROCCES_BUILDING = PROCCES_BUILDING.Process.Pid
-	log.Printf("PID запущенного процесса: %d", PROCCES_BUILDING.Process.Pid)
+	loger.LogPrint.Package("SERVICE").Log(fmt.Sprintf("PID запущенного процесса: %d", PROCCES_BUILDING.Process.Pid))
 
 	err = PROCCES_BUILDING.Wait()
 	if err != nil {
@@ -42,14 +45,14 @@ func runPCBuild(platform string, device string) {
 				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно: " + fmt.Sprintf("%s", err)
 			}
 			STATUS_BUILDING = false
-			log.Println("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err)
+			loger.LogPrint.Package("SERVICE").Log(fmt.Sprint("ОШИБКА СБОРКИ: ", string(runBuilderOutput), "ERR: ", err))
 			return
 		} else {
 			switch device {
 			case "PC":
 				bot.ResultBuildMessage.Device.BuildInfo = device + " сборка: ⚠️ Не успешно"
 			}
-			log.Println(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode())
+			loger.LogPrint.Package("SERVICE").Log(fmt.Sprint(string(runBuilderOutput), "Status code: ", PROCCES_BUILDING.ProcessState.ExitCode()))
 			STATUS_BUILDING = false
 			CHECK_LIST.building = PROCCES_BUILDING.ProcessState.ExitCode()
 			return

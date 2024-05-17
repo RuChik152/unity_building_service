@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+	"web_hendler/loger"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,7 +36,7 @@ func ConnectMongoDB() {
 	if err != nil {
 		log.Fatal("Ошибка проверки доступности доступа к БД: ", err)
 	} else {
-		fmt.Println("Connected to MongoDB!")
+		loger.LogPrint.Package("DB").Log("Connected to MongoDB!")
 		CLIENT = client
 		MONGO_DB = client.Database(MONGO_DB_NAME)
 	}
@@ -65,7 +66,7 @@ func InsertOneDbCommit(data CommitData, collectionName string) bool {
 			log.Fatal(err)
 			return false
 		}
-		log.Println("Inserted ID:", res)
+		loger.LogPrint.Package("DB").Log(fmt.Sprint("Inserted ID:", res))
 		return true
 	}
 	return false
@@ -91,33 +92,3 @@ func GetCommitData(id int, collectionName string) (GetCommit, error) {
 func getCollection(collectionName string) *mongo.Collection {
 	return MONGO_DB.Collection(collectionName)
 }
-
-/*
-В целом проверка не нужно и этот функционал надо вывести, пока оставлю. Если дого не возвращусь к нему, значит надо будет удалить.
-*/
-// func checkCollection(collectionName string) bool {
-// 	collectionNames, err := MONGO_DB.ListCollectionNames(context.Background(), bson.D{})
-// 	if err != nil {
-// 		log.Printf("Error checking collection existence: %v", err)
-// 		return false
-// 	}
-
-// 	for _, name := range collectionNames {
-// 		if name == collectionName {
-// 			return true
-// 		}
-// 	}
-
-// 	createCollection(collectionName)
-// 	return false
-// }
-/*
-Использовался совместо с функцией checkCollection, то же самое, если долго к ней не вернусь то удалить
-*/
-// func createCollection(collectionName string) {
-// 	if err := MONGO_DB.CreateCollection(context.Background(), collectionName); err != nil {
-// 		log.Printf("Error creating collection: %v", err)
-// 	} else {
-// 		log.Printf("Collection '%s' created successfully", collectionName)
-// 	}
-// }
