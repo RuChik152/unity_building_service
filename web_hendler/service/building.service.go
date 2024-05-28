@@ -46,7 +46,6 @@ func handleBuildProcess() {
 		db.Commit.ID = countVersion
 		go db.InsertOneDbCommit(db.Commit, "commits")
 		runCopyKey()
-		runCreateGlobalConstant()
 		if CHECK_LIST.pre_build == 0 {
 
 			for platform, targetPlatform := range LIST_PLATFORM {
@@ -65,7 +64,7 @@ func handleBuildProcess() {
 						if STATUS_RESET {
 							break
 						}
-
+						runCreateGlobalConstant(device)
 						runCopyGeneralSettings(device)
 						runBuild(platform, device)
 
@@ -93,6 +92,7 @@ func handleBuildProcess() {
 							break
 						}
 
+						runCreateGlobalConstant(device)
 						cleaner.RemoveAllFileDir(DEST_WIN_BUILD_FOLDER)
 						runPCBuild(platform, device)
 
@@ -116,16 +116,6 @@ func handleBuildProcess() {
 				}
 				STATUS_BUILDING = false
 			}
-
-			// if !STATUS_RESET {
-
-			// 	if strMessage, err := json.Marshal(bot.ResultMsgBuild); err != nil {
-			// 		log.Println("Ошибка преобразования данных для отправки боту")
-			// 	} else {
-			// 		bot.SendMessageBot(string(strMessage), "#pipline_check")
-			// 	}
-
-			// }
 
 		} else {
 			loger.LogPrint.Package("SERVICE").Log("ERROR PREBUILD PROCCES")
@@ -296,7 +286,7 @@ func runCopyGeneralSettings(device string) {
 	CHECK_LIST.pre_build = runCopyGeneralSettings.ProcessState.ExitCode()
 }
 
-func runCreateGlobalConstant() {
+func runCreateGlobalConstant(device string) {
 
 	pathMudule, _ := os.LookupEnv("PATH_PREBUILD_MOD")
 	if pathMudule == "" {
@@ -308,6 +298,7 @@ func runCreateGlobalConstant() {
 		"create",
 		PROJECT_FOLDER,
 		filepath.Join(PROJECT_FOLDER, "\\Assets\\Scripts\\GlobalConstants.cs"),
+		device,
 	}
 	runCreateGlobalConstant := exec.Command(pathMudule, creatGlobalConstantArgs...)
 	creatGlobalConstantOutput, err := runCreateGlobalConstant.CombinedOutput()

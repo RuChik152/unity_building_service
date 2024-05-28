@@ -11,10 +11,12 @@ import (
 	"unicode"
 )
 
-func createGlobalConstant(dirrectory string, pathFile string) int {
+type Platform string
+
+func createGlobalConstant(dirrectory string, pathFile string, platform Platform) int {
 	countCommit, _ := exec.Command("git", "-C", dirrectory, "rev-list", "--count", "main").Output()
 	shortHashCommit, _ := exec.Command("git", "-C", dirrectory, "rev-parse", "--short", "main").Output()
-	dataBuild := time.Now().Format("06_01_02")
+	dataBuild := time.Now().Format("02_01_2006")
 
 	log.Println(shortHashCommit)
 	//hash := string(shortHashCommit)
@@ -35,15 +37,17 @@ func createGlobalConstant(dirrectory string, pathFile string) int {
 		public const string ProjectVersion = "0.%d";
 		public const string ShortHashCommit = "%s";
 		public const string DataBuild = "%s";
+		public const string Platform = "%s"
 
 		void
 		Start()
 		{
 			GL.BLD_V = MessageInTheSky;
+			GL.PLTFRM = Platform;
 		}
 	}
 
-	`, dataBuild, numberVersion, numberVersion, numberVersion, hash, dataBuild)
+	`, dataBuild, numberVersion, numberVersion, numberVersion, hash, dataBuild, platform)
 
 	file, err := os.Create(pathFile)
 	if err != nil {

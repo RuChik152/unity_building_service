@@ -47,7 +47,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		statusCode := createGlobalConstant(os.Args[2], os.Args[3])
+		statusCode := createGlobalConstant(os.Args[2], os.Args[3], Platform(os.Args[4]))
 		os.Exit(statusCode)
 	}
 }
