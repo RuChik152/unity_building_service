@@ -37,7 +37,7 @@ func createGlobalConstant(dirrectory string, pathFile string, platform Platform)
 		public const string ProjectVersion = "0.%d";
 		public const string ShortHashCommit = "%s";
 		public const string DataBuild = "%s";
-		public const string Platform = "%s"
+		public const string Platform = "%s";
 
 		void
 		Start()
