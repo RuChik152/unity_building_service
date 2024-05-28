@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"os/exec"
 
 	"github.com/joho/godotenv"
 )
@@ -49,13 +48,13 @@ func init() {
 		}
 
 		if PLATFORM == "PICO" || PLATFORM == "OCULUS" {
-			updateCLI := exec.Command(CLI_PATH, "self-update")
-			version, _ := exec.Command(CLI_PATH, "version").Output()
-			err := updateCLI.Run()
-			if err != nil {
-				log.Println("Ошибка проверки обновлений: ", err)
-			}
-			log.Println(string(version))
+			// updateCLI := exec.Command(CLI_PATH, "self-update")
+			// version, _ := exec.Command(CLI_PATH, "version").Output()
+			// err := updateCLI.Run()
+			// if err != nil {
+			// 	log.Println("Ошибка проверки обновлений: ", err)
+			// }
+			// log.Println(string(version))
 
 			if len(os.Args) < 7 {
 				log.Println("ERROR: APP_ID or APP_SECRET not found")
